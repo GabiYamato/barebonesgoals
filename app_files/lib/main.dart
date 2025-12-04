@@ -8,6 +8,7 @@ import 'widgets/task_grid.dart';
 import 'widgets/add_task_modal.dart';
 import 'widgets/completion_chart.dart';
 import 'screens/settings_screen.dart';
+import 'screens/month_detail_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -135,6 +136,64 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
     }
   }
 
+  Widget _buildTodayProgressBar() {
+    final today = DateTime.now();
+    final percentage = _data.getCompletionPercentage(today);
+    final progressValue = percentage / 100;
+
+    // Light green for background, darker green for progress
+    const progressColor = Color(0xFF34C759); // iOS green
+    const backgroundColor = Color(0xFFD1FAE5); // Light green
+
+    return Container(
+      width: 140,
+      margin: const EdgeInsets.only(right: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Progress bar
+          Expanded(
+            child: Container(
+              height: 24,
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Stack(
+                children: [
+                  // Progress fill
+                  FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: progressValue.clamp(0.0, 1.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: progressColor,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  // Percentage text centered
+                  Center(
+                    child: Text(
+                      '${percentage.round()}%',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: progressValue > 0.5
+                            ? Colors.white
+                            : Colors.green.shade800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -149,34 +208,38 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_currentIndex == 0 ? 'Daily Tracker' : 'History'),
-        actions: [
-          // Streak indicator
-          Container(
-            margin: const EdgeInsets.only(right: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.local_fire_department,
-                  size: 18,
-                  color: Colors.orange.shade700,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '${_data.calculateStreak()}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
+        centerTitle: false,
+        titleSpacing: 0,
+        leadingWidth: 48,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Icon(
+            Icons.check_box_outlined,
+            color: AppTheme.completedColor,
+            size: 28,
           ),
+        ),
+        title: _currentIndex == 0
+            ? Row(
+                children: [
+                  const Spacer(),
+                  const Text(
+                    'Daily Progress:',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildTodayProgressBar(),
+                  const Spacer(),
+                ],
+              )
+            : const Text(
+                'History',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+        actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             onPressed: _navigateToSettings,
@@ -293,116 +356,136 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
     final year = month.year;
     final stats = _calculateMonthStats(month);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Month header
-          Text(
-            '$monthName $year',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-
-          // Stats row
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard(
-                  icon: Icons.local_fire_department,
-                  iconColor: Colors.orange,
-                  label: 'Max Streak',
-                  value: '${stats['maxStreak']} days',
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildStatCard(
-                  icon: Icons.check_circle,
-                  iconColor: AppTheme.completedColor,
-                  label: 'Goal Achieved',
-                  value: '${stats['goalsAchieved']}/${stats['totalDays']} days',
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Most completed goal
-          if (stats['mostCompletedGoal'] != null)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.star, color: Colors.amber.shade700, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Most Consistent Goal',
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(color: Colors.grey.shade600),
-                        ),
-                        Text(
-                          stats['mostCompletedGoal'],
-                          style: Theme.of(context).textTheme.titleSmall
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    '${stats['mostCompletedCount']} days',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.completedColor,
-                    ),
-                  ),
-                ],
-              ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => MonthDetailScreen(
+              month: month,
+              data: _data,
+              settings: _settings,
             ),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceColor,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Month header with arrow indicator
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '$monthName $year',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                Icon(Icons.chevron_right, color: Colors.grey.shade400),
+              ],
+            ),
+            const SizedBox(height: 16),
 
-          const SizedBox(height: 16),
+            // Stats row
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStatCard(
+                    icon: Icons.local_fire_department,
+                    iconColor: Colors.orange,
+                    label: 'Max Streak',
+                    value: '${stats['maxStreak']} days',
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildStatCard(
+                    icon: Icons.check_circle,
+                    iconColor: AppTheme.completedColor,
+                    label: 'Goal Achieved',
+                    value:
+                        '${stats['goalsAchieved']}/${stats['totalDays']} days',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
 
-          // Week day labels
-          Row(
-            children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-                .map(
-                  (day) => SizedBox(
-                    width: AppTheme.cellSize + AppTheme.cellSpacing,
-                    child: Center(
-                      child: Text(
-                        day,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey.shade600,
+            // Most completed goal
+            if (stats['mostCompletedGoal'] != null)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.star, color: Colors.amber.shade700, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Most Consistent Goal',
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(color: Colors.grey.shade600),
+                          ),
+                          Text(
+                            stats['mostCompletedGoal'],
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      '${stats['mostCompletedCount']} days',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.completedColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            const SizedBox(height: 16),
+
+            // Week day labels
+            Row(
+              children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+                  .map(
+                    (day) => SizedBox(
+                      width: AppTheme.cellSize + AppTheme.cellSpacing,
+                      child: Center(
+                        child: Text(
+                          day,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                )
-                .toList(),
-          ),
-          const SizedBox(height: 8),
+                  )
+                  .toList(),
+            ),
+            const SizedBox(height: 8),
 
-          // Calendar grid
-          _buildCalendarGrid(month),
-        ],
+            // Calendar grid
+            _buildCalendarGrid(month),
+          ],
+        ),
       ),
     );
   }

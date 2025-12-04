@@ -3,7 +3,7 @@ import '../models/tracker_data.dart';
 import '../models/app_settings.dart';
 import '../theme/neo_brutalist_theme.dart';
 
-class CompletionChart extends StatelessWidget {
+class CompletionChart extends StatefulWidget {
   final TrackerData data;
   final AppSettings settings;
 
@@ -14,13 +14,38 @@ class CompletionChart extends StatelessWidget {
   });
 
   @override
+  State<CompletionChart> createState() => _CompletionChartState();
+}
+
+class _CompletionChartState extends State<CompletionChart> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Scroll to end (newest day) after build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final days = TrackerData.getLastNDays(settings.daysShownInGraph);
+    final days = TrackerData.getLastNDays(widget.settings.daysShownInGraph);
     final percentages = days
-        .map((day) => data.getCompletionPercentage(day))
+        .map((day) => widget.data.getCompletionPercentage(day))
         .toList();
     const double chartHeight = 100.0;
     const double xAxisHeight = 20.0;
+    final streak = widget.data.calculateStreak();
 
     return Card(
       child: Padding(
@@ -39,6 +64,37 @@ class CompletionChart extends StatelessWidget {
                   'Completion Rate',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                // Streak indicator
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.local_fire_department,
+                        size: 16,
+                        color: Colors.orange.shade700,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$streak',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange.shade800,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -91,10 +147,11 @@ class CompletionChart extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // Chart content with clipping
+                  // Chart content with clipping - scrolled to end
                   Expanded(
                     child: ClipRect(
                       child: SingleChildScrollView(
+                        controller: _scrollController,
                         scrollDirection: Axis.horizontal,
                         child: _buildChartContent(
                           days,
@@ -110,7 +167,7 @@ class CompletionChart extends StatelessWidget {
             const SizedBox(height: 8),
             Center(
               child: Text(
-                'Last ${settings.daysShownInGraph} days',
+                'Last ${widget.settings.daysShownInGraph} days',
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
             ),
@@ -125,7 +182,7 @@ class CompletionChart extends StatelessWidget {
     List<double> percentages,
     double chartHeight,
   ) {
-    switch (settings.graphType) {
+    switch (widget.settings.graphType) {
       case GraphType.bar:
         return _buildBarChart(days, percentages, chartHeight);
       case GraphType.line:
