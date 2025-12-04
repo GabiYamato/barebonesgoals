@@ -19,27 +19,29 @@ class SplashScreen extends StatelessWidget {
               Text(
                 'Daily Tracker',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Track small habits consistently',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
               ),
               const SizedBox(height: 36),
               SizedBox(
                 width: 140,
                 child: ElevatedButton(
-                  onPressed: onStart ?? () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => IntroScreen(
-                          onDone: () {},
-                        ),
-                      ),
-                    );
-                  },
+                  onPressed:
+                      onStart ??
+                      () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => IntroScreen(onDone: () {}),
+                          ),
+                        );
+                      },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.completedColor,
                     shape: RoundedRectangleBorder(

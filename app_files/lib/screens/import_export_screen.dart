@@ -44,7 +44,7 @@ class _ImportExportScreenState extends State<ImportExportScreen> {
       if (result != null && result.files.single.path != null) {
         final file = File(result.files.single.path!);
         final jsonString = await file.readAsString();
-        
+
         // Try to parse and import
         final Map<String, dynamic> json = jsonDecode(jsonString);
         final data = TrackerData.fromJson(json);
@@ -53,7 +53,10 @@ class _ImportExportScreenState extends State<ImportExportScreen> {
         _showMessage('Data imported successfully!');
       }
     } catch (e) {
-      _showMessage('Failed to import file. Please check the format.', isError: true);
+      _showMessage(
+        'Failed to import file. Please check the format.',
+        isError: true,
+      );
     } finally {
       setState(() {
         _isImporting = false;
@@ -102,7 +105,7 @@ class _ImportExportScreenState extends State<ImportExportScreen> {
     try {
       final data = await StorageService.loadData();
       final jsonString = jsonEncode(data.toJson());
-      
+
       // Create a temporary file
       final directory = await getTemporaryDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -297,8 +300,9 @@ class _ImportExportScreenState extends State<ImportExportScreen> {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.check_circle, 
-                                color: AppTheme.completedColor, 
+                              Icon(
+                                Icons.check_circle,
+                                color: AppTheme.completedColor,
                                 size: 20,
                               ),
                               const SizedBox(width: 8),

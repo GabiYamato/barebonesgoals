@@ -57,19 +57,19 @@ class _DailyTrackerAppState extends State<DailyTrackerApp> {
       title: 'Daily Tracker',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeData,
-    home: _isLoading
-      ? const Scaffold(body: Center(child: CircularProgressIndicator()))
-      : _hasSeenIntro
-              ? const TrackerHomePage()
-              : SplashScreen(
-                  onStart: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => IntroScreen(onDone: _onIntroDone),
-                      ),
-                    );
-                  },
-                ),
+      home: _isLoading
+          ? const Scaffold(body: Center(child: CircularProgressIndicator()))
+          : _hasSeenIntro
+          ? const TrackerHomePage()
+          : SplashScreen(
+              onStart: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => IntroScreen(onDone: _onIntroDone),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

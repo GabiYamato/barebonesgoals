@@ -33,8 +33,10 @@ class _IntroScreenState extends State<IntroScreen> {
 
   void _toggle(String name) {
     setState(() {
-      if (_selected.contains(name)) _selected.remove(name);
-      else _selected.add(name);
+      if (_selected.contains(name))
+        _selected.remove(name);
+      else
+        _selected.add(name);
     });
   }
 
@@ -69,17 +71,17 @@ class _IntroScreenState extends State<IntroScreen> {
         const SizedBox(height: 12),
         Text(
           'Welcome to Daily Tracker',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 12),
         Text(
           'Build streaks, track consistency, and make progress one day at a time.',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey.shade600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
           textAlign: TextAlign.center,
         ),
       ],
@@ -92,9 +94,9 @@ class _IntroScreenState extends State<IntroScreen> {
       children: [
         Text(
           'Pick a few starter tasks',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 18),
         Wrap(
@@ -115,9 +117,9 @@ class _IntroScreenState extends State<IntroScreen> {
         const SizedBox(height: 28),
         Text(
           'Tap to select tasks you want to start with. You can edit them later.',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey.shade600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 18),
@@ -149,10 +151,7 @@ class _IntroScreenState extends State<IntroScreen> {
             Expanded(
               child: PageView(
                 controller: _pageController,
-                children: [
-                  _buildPage1(context),
-                  _buildPage2(context),
-                ],
+                children: [_buildPage1(context), _buildPage2(context)],
               ),
             ),
             Padding(
@@ -163,7 +162,9 @@ class _IntroScreenState extends State<IntroScreen> {
                   TextButton(
                     onPressed: () {
                       _pageController.previousPage(
-                          duration: const Duration(milliseconds: 300), curve: Curves.ease);
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.ease,
+                      );
                     },
                     child: const Text('Back'),
                   ),
@@ -171,7 +172,10 @@ class _IntroScreenState extends State<IntroScreen> {
                     children: [
                       TextButton(
                         onPressed: () {
-                          _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.ease,
+                          );
                         },
                         child: const Text('Next'),
                       ),
