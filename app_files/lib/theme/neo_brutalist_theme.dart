@@ -99,10 +99,7 @@ class AppTheme {
       }),
       trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
     ),
-    dividerTheme: DividerThemeData(
-      color: Colors.grey.shade200,
-      thickness: 1,
-    ),
+    dividerTheme: DividerThemeData(color: Colors.grey.shade200, thickness: 1),
     listTileTheme: const ListTileThemeData(
       contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 4),
     ),

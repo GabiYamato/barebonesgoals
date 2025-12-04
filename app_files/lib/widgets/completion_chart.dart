@@ -96,7 +96,11 @@ class CompletionChart extends StatelessWidget {
                     child: ClipRect(
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
-                        child: _buildChartContent(days, percentages, chartHeight),
+                        child: _buildChartContent(
+                          days,
+                          percentages,
+                          chartHeight,
+                        ),
                       ),
                     ),
                   ),
@@ -201,20 +205,30 @@ class CompletionChart extends StatelessWidget {
             height: chartHeight,
             child: CustomPaint(
               size: Size(percentages.length * 18.0, chartHeight),
-              painter: LineChartPainter(percentages: percentages, maxHeight: chartHeight),
+              painter: LineChartPainter(
+                percentages: percentages,
+                maxHeight: chartHeight,
+              ),
             ),
           ),
           // X-axis labels
           const SizedBox(height: 4),
           Row(
-            children: days.map((day) => SizedBox(
-              width: 18,
-              child: Text(
-                day.day.toString(),
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 9, color: Colors.grey.shade600),
-              ),
-            )).toList(),
+            children: days
+                .map(
+                  (day) => SizedBox(
+                    width: 18,
+                    child: Text(
+                      day.day.toString(),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
           ),
         ],
       ),
@@ -291,20 +305,30 @@ class CompletionChart extends StatelessWidget {
             height: chartHeight,
             child: CustomPaint(
               size: Size(percentages.length * 18.0, chartHeight),
-              painter: AreaChartPainter(percentages: percentages, maxHeight: chartHeight),
+              painter: AreaChartPainter(
+                percentages: percentages,
+                maxHeight: chartHeight,
+              ),
             ),
           ),
           // X-axis labels
           const SizedBox(height: 4),
           Row(
-            children: days.map((day) => SizedBox(
-              width: 18,
-              child: Text(
-                day.day.toString(),
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 9, color: Colors.grey.shade600),
-              ),
-            )).toList(),
+            children: days
+                .map(
+                  (day) => SizedBox(
+                    width: 18,
+                    child: Text(
+                      day.day.toString(),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
           ),
         ],
       ),
@@ -326,20 +350,30 @@ class CompletionChart extends StatelessWidget {
             height: chartHeight,
             child: CustomPaint(
               size: Size(percentages.length * 18.0, chartHeight),
-              painter: SteppedChartPainter(percentages: percentages, maxHeight: chartHeight),
+              painter: SteppedChartPainter(
+                percentages: percentages,
+                maxHeight: chartHeight,
+              ),
             ),
           ),
           // X-axis labels
           const SizedBox(height: 4),
           Row(
-            children: days.map((day) => SizedBox(
-              width: 18,
-              child: Text(
-                day.day.toString(),
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 9, color: Colors.grey.shade600),
-              ),
-            )).toList(),
+            children: days
+                .map(
+                  (day) => SizedBox(
+                    width: 18,
+                    child: Text(
+                      day.day.toString(),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
           ),
         ],
       ),

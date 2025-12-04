@@ -104,10 +104,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 16),
                 const Text(
                   'Enter Dev Code',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 16),
                 Padding(
@@ -175,7 +172,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _submitDevCode(String code) {
     Navigator.of(context).pop();
-    
+
     if (code.toLowerCase().trim() == 'youreadopted') {
       _loadSampleData();
     } else {
@@ -206,18 +203,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 16),
               const Text(
                 'Clear All Data?',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 4),
               Text(
                 'This will delete all your tasks and history.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
               ),
               const SizedBox(height: 16),
               const Divider(height: 1),
@@ -248,10 +239,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: const Text(
                     'Cancel',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w400),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -424,10 +412,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                       ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: Colors.grey.shade400,
-                      ),
+                      Icon(Icons.chevron_right, color: Colors.grey.shade400),
                     ],
                   ),
                 ),
@@ -462,10 +447,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                       ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: Colors.grey.shade400,
-                      ),
+                      Icon(Icons.chevron_right, color: Colors.grey.shade400),
                     ],
                   ),
                 ),
@@ -536,10 +518,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           ...children,
@@ -572,7 +551,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(8),
@@ -625,52 +607,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 16),
               const Text(
                 'Select Graph Type',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 13, color: Colors.grey),
               ),
               const SizedBox(height: 8),
-              ...GraphType.values.map((type) => Column(
-                children: [
-                  const Divider(height: 1),
-                  InkWell(
-                    onTap: () {
-                      _updateSettings(_settings.copyWith(graphType: type));
-                      Navigator.of(context).pop();
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            AppSettings.graphTypeToString(type),
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: _settings.graphType == type
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
-                              color: _settings.graphType == type
-                                  ? AppTheme.chartColor
-                                  : Colors.black,
+              ...GraphType.values.map(
+                (type) => Column(
+                  children: [
+                    const Divider(height: 1),
+                    InkWell(
+                      onTap: () {
+                        _updateSettings(_settings.copyWith(graphType: type));
+                        Navigator.of(context).pop();
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              AppSettings.graphTypeToString(type),
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: _settings.graphType == type
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                                color: _settings.graphType == type
+                                    ? AppTheme.chartColor
+                                    : Colors.black,
+                              ),
                             ),
-                          ),
-                          if (_settings.graphType == type) ...[
-                            const SizedBox(width: 8),
-                            Icon(
-                              Icons.check,
-                              color: AppTheme.chartColor,
-                              size: 20,
-                            ),
+                            if (_settings.graphType == type) ...[
+                              const SizedBox(width: 8),
+                              Icon(
+                                Icons.check,
+                                color: AppTheme.chartColor,
+                                size: 20,
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              )),
+                  ],
+                ),
+              ),
               const Divider(height: 1),
               InkWell(
                 onTap: () => Navigator.of(context).pop(),
@@ -679,10 +660,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: const Text(
                     'Cancel',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w400),
                     textAlign: TextAlign.center,
                   ),
                 ),

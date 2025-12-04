@@ -33,9 +33,10 @@ class TaskGrid extends StatelessWidget {
       builder: (context, constraints) {
         // Calculate available width for cells
         // Total width - task name width - gap - padding for last cell spacing
-        final availableWidth = constraints.maxWidth - _taskNameWidth - _taskNameGap;
+        final availableWidth =
+            constraints.maxWidth - _taskNameWidth - _taskNameGap;
         final numberOfDays = settings.daysShownInTaskSection;
-        
+
         // Calculate cell width to fit exactly
         // (availableWidth - total spacing) / number of days
         final totalSpacing = _cellSpacing * (numberOfDays - 1);
@@ -48,7 +49,9 @@ class TaskGrid extends StatelessWidget {
             _buildDayLabelsRow(days, cellWidth),
             const SizedBox(height: 8),
             // Task rows
-            ...data.tasks.map((task) => _buildTaskRow(context, task, days, today, cellWidth)),
+            ...data.tasks.map(
+              (task) => _buildTaskRow(context, task, days, today, cellWidth),
+            ),
           ],
         );
       },
@@ -66,17 +69,14 @@ class TaskGrid extends StatelessWidget {
           final index = entry.key;
           final day = entry.value;
           final isLast = index == days.length - 1;
-          
+
           return Container(
             width: cellWidth,
             margin: EdgeInsets.only(right: isLast ? 0 : _cellSpacing),
             child: Center(
               child: Text(
                 day.day.toString(),
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
               ),
             ),
           );
@@ -154,7 +154,7 @@ class TaskGrid extends StatelessWidget {
             final day = entry.value;
             final isCompleted = task.isCompletedOn(day);
             final isLast = index == days.length - 1;
-            
+
             return Container(
               width: cellWidth,
               height: _taskRowHeight,
@@ -190,10 +190,7 @@ class TaskGrid extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 isCompleted ? 'Mark Incomplete?' : 'Mark Complete?',
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 13, color: Colors.grey),
               ),
               const SizedBox(height: 4),
               Padding(
@@ -222,7 +219,9 @@ class TaskGrid extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w500,
-                      color: isCompleted ? Colors.orange : AppTheme.completedColor,
+                      color: isCompleted
+                          ? Colors.orange
+                          : AppTheme.completedColor,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -236,10 +235,7 @@ class TaskGrid extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: const Text(
                     'Cancel',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w400),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -269,10 +265,7 @@ class TaskGrid extends StatelessWidget {
               const SizedBox(height: 16),
               const Text(
                 'Delete Task?',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 13, color: Colors.grey),
               ),
               const SizedBox(height: 4),
               Padding(
@@ -312,10 +305,7 @@ class TaskGrid extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: const Text(
                     'Cancel',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w400),
                     textAlign: TextAlign.center,
                   ),
                 ),

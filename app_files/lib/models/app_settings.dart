@@ -25,7 +25,8 @@ class AppSettings {
       showHistoryInGraph: showHistoryInGraph ?? this.showHistoryInGraph,
       daysShownInGraph: daysShownInGraph ?? this.daysShownInGraph,
       graphType: graphType ?? this.graphType,
-      daysShownInTaskSection: daysShownInTaskSection ?? this.daysShownInTaskSection,
+      daysShownInTaskSection:
+          daysShownInTaskSection ?? this.daysShownInTaskSection,
     );
   }
 

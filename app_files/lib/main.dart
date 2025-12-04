@@ -50,7 +50,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
   Future<void> _loadData() async {
     final data = await StorageService.loadData();
     final settings = await StorageService.loadSettings();
-    
+
     setState(() {
       _data = data;
       _settings = settings;
@@ -170,9 +170,9 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
                 const SizedBox(width: 4),
                 Text(
                   '${_data.calculateStreak()}',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -328,8 +328,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
                   icon: Icons.check_circle,
                   iconColor: AppTheme.completedColor,
                   label: 'Goal Achieved',
-                  value:
-                      '${stats['goalsAchieved']}/${stats['totalDays']} days',
+                  value: '${stats['goalsAchieved']}/${stats['totalDays']} days',
                 ),
               ),
             ],
@@ -599,11 +598,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
       padding: const EdgeInsets.all(32),
       child: Column(
         children: [
-          Icon(
-            Icons.task_alt,
-            size: 64,
-            color: Colors.grey.shade300,
-          ),
+          Icon(Icons.task_alt, size: 64, color: Colors.grey.shade300),
           const SizedBox(height: 16),
           Text('No Tasks Yet', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),

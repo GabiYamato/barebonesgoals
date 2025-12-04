@@ -58,9 +58,9 @@ class _AddTaskModalState extends State<AddTaskModal> {
               // Title
               Text(
                 'New Task',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 20),
               TextField(
