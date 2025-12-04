@@ -3,6 +3,7 @@ import '../models/app_settings.dart';
 import '../models/tracker_data.dart';
 import '../services/storage_service.dart';
 import '../theme/neo_brutalist_theme.dart';
+import 'import_export_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final AppSettings settings;
@@ -22,18 +23,11 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   late AppSettings _settings;
-  final TextEditingController _devCodeController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _settings = widget.settings;
-  }
-
-  @override
-  void dispose() {
-    _devCodeController.dispose();
-    super.dispose();
   }
 
   void _updateSettings(AppSettings newSettings) {
@@ -43,18 +37,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     widget.onSettingsChanged(newSettings);
   }
 
-  Future<void> _loadSampleData() async {
-    final sampleData = TrackerData.sampleData();
-    await StorageService.saveData(sampleData);
-    widget.onDataChanged?.call(sampleData);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sample data loaded successfully!'),
-          behavior: SnackBarBehavior.floating,
+  void _navigateToImportExport() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ImportExportScreen(
+          onDataChanged: widget.onDataChanged,
         ),
-      );
-    }
+      ),
+    );
   }
 
   Future<void> _clearAllData() async {
@@ -65,120 +55,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('All data cleared'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
-  }
-
-  void _showDevCodeSheet() {
-    _devCodeController.clear();
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Container(
-          margin: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 8),
-                Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Enter Dev Code',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: TextField(
-                    controller: _devCodeController,
-                    autofocus: true,
-                    decoration: InputDecoration(
-                      hintText: 'Enter code...',
-                      filled: true,
-                      fillColor: Colors.grey.shade100,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                    ),
-                    onSubmitted: (value) => _submitDevCode(value),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Divider(height: 1),
-                InkWell(
-                  onTap: () => _submitDevCode(_devCodeController.text),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Text(
-                      'Submit',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.chartColor,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-                const Divider(height: 1),
-                InkWell(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _submitDevCode(String code) {
-    Navigator.of(context).pop();
-
-    if (code.toLowerCase().trim() == 'youreadopted') {
-      _loadSampleData();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid code'),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -385,7 +261,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Data',
             children: [
               InkWell(
-                onTap: _showDevCodeSheet,
+                onTap: _navigateToImportExport,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   child: Row(
@@ -397,7 +273,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
-                          Icons.code,
+                          Icons.sync_alt,
                           size: 20,
                           color: Colors.blue.shade700,
                         ),
@@ -405,7 +281,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(width: 12),
                       const Expanded(
                         child: Text(
-                          'Enter Dev Code',
+                          'Import or Export Data',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:confetti/confetti.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'models/task.dart';
 import 'models/tracker_data.dart';
 import 'models/app_settings.dart';
@@ -9,14 +11,44 @@ import 'widgets/add_task_modal.dart';
 import 'widgets/completion_chart.dart';
 import 'screens/settings_screen.dart';
 import 'screens/month_detail_screen.dart';
+import 'screens/intro_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const DailyTrackerApp());
 }
 
-class DailyTrackerApp extends StatelessWidget {
+class DailyTrackerApp extends StatefulWidget {
   const DailyTrackerApp({super.key});
+
+  @override
+  State<DailyTrackerApp> createState() => _DailyTrackerAppState();
+}
+
+class _DailyTrackerAppState extends State<DailyTrackerApp> {
+  bool _isLoading = true;
+  bool _hasSeenIntro = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFirstTime();
+  }
+
+  Future<void> _checkFirstTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasSeenIntro = prefs.getBool('hasSeenIntro') ?? false;
+    setState(() {
+      _hasSeenIntro = hasSeenIntro;
+      _isLoading = false;
+    });
+  }
+
+  void _onIntroDone() {
+    setState(() {
+      _hasSeenIntro = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +56,15 @@ class DailyTrackerApp extends StatelessWidget {
       title: 'Daily Tracker',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeData,
-      home: const TrackerHomePage(),
+      home: _isLoading
+          ? const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : _hasSeenIntro
+              ? const TrackerHomePage()
+              : IntroScreen(onDone: _onIntroDone),
     );
   }
 }
@@ -41,11 +81,20 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
   AppSettings _settings = AppSettings();
   bool _isLoading = true;
   int _currentIndex = 0;
+  late ConfettiController _confettiController;
+  bool _hasShownConfetti = false;
 
   @override
   void initState() {
     super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 2));
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -141,9 +190,39 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
     final percentage = _data.getCompletionPercentage(today);
     final progressValue = percentage / 100;
 
-    // Light green for background, darker green for progress
-    const progressColor = Color(0xFF34C759); // iOS green
-    const backgroundColor = Color(0xFFD1FAE5); // Light green
+    // Determine colors based on percentage
+    // 0-33% red, 33-66% yellow, 66-99% green, 100% gold
+    Color progressColor;
+    Color backgroundColor;
+    Color textColor;
+
+    if (percentage >= 100) {
+      progressColor = const Color(0xFFFFD700); // Gold
+      backgroundColor = const Color(0xFFFFF8DC); // Light gold
+      textColor = const Color(0xFFB8860B); // Dark gold text
+      // Trigger confetti if not shown yet
+      if (!_hasShownConfetti) {
+        _hasShownConfetti = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _confettiController.play();
+        });
+      }
+    } else {
+      _hasShownConfetti = false; // Reset when not 100%
+      if (percentage >= 66) {
+        progressColor = const Color(0xFF34C759); // Green
+        backgroundColor = const Color(0xFFD1FAE5); // Light green
+        textColor = progressValue > 0.5 ? Colors.white : Colors.green.shade800;
+      } else if (percentage >= 33) {
+        progressColor = const Color(0xFFFFCC00); // Yellow
+        backgroundColor = const Color(0xFFFFF9E6); // Light yellow
+        textColor = Colors.orange.shade900;
+      } else {
+        progressColor = const Color(0xFFFF3B30); // Red
+        backgroundColor = const Color(0xFFFFE5E5); // Light red
+        textColor = percentage > 15 ? Colors.white : Colors.red.shade800;
+      }
+    }
 
     return Container(
       width: 140,
@@ -157,7 +236,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
               height: 24,
               decoration: BoxDecoration(
                 color: backgroundColor,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(6),
               ),
               child: Stack(
                 children: [
@@ -168,7 +247,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
                     child: Container(
                       decoration: BoxDecoration(
                         color: progressColor,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(6),
                       ),
                     ),
                   ),
@@ -179,9 +258,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: progressValue > 0.5
-                            ? Colors.white
-                            : Colors.green.shade800,
+                        color: textColor,
                       ),
                     ),
                   ),
@@ -206,57 +283,56 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        titleSpacing: 0,
-        leadingWidth: 48,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 12),
-          child: Icon(
-            Icons.check_box_outlined,
-            color: AppTheme.completedColor,
-            size: 28,
-          ),
-        ),
-        title: _currentIndex == 0
-            ? Row(
-                children: [
-                  const Spacer(),
-                  const Text(
-                    'Daily Progress:',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  _buildTodayProgressBar(),
-                  const Spacer(),
-                ],
-              )
-            : const Text(
-                'History',
-                style: TextStyle(fontWeight: FontWeight.bold),
+    return Stack(
+      children: [
+        Scaffold(
+          appBar: AppBar(
+            centerTitle: false,
+            titleSpacing: 0,
+            leadingWidth: 48,
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: Icon(
+                Icons.check_box_outlined,
+                color: AppTheme.completedColor,
+                size: 28,
               ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: _navigateToSettings,
+            ),
+            title: _currentIndex == 0
+                ? Row(
+                    children: [
+                      const Spacer(),
+                      const Text(
+                        'Daily Progress:',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildTodayProgressBar(),
+                      const Spacer(),
+                    ],
+                  )
+                : const Text(
+                    'History',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.settings_outlined),
+                onPressed: _navigateToSettings,
+              ),
+            ],
           ),
-        ],
-      ),
-      body: _currentIndex == 0 ? _buildHomeContent() : _buildHistoryContent(),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: Colors.grey.shade200, width: 1),
-          ),
-        ),
-        child: NavigationBar(
-          selectedIndex: _currentIndex == 0 ? 0 : 2,
-          onDestinationSelected: _onNavTap,
-          height: 60,
+          body: _currentIndex == 0 ? _buildHomeContent() : _buildHistoryContent(),
+          bottomNavigationBar: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(color: Colors.grey.shade200, width: 1),
+              ),
+            ),
+            child: NavigationBar(
+              selectedIndex: _currentIndex == 0 ? 0 : 2,
+              onDestinationSelected: _onNavTap,
+              height: 60,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
           destinations: const [
             NavigationDestination(
@@ -277,50 +353,87 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
           ],
         ),
       ),
+        ),
+        // Confetti widget for 100% completion celebration
+        Align(
+          alignment: Alignment.topCenter,
+          child: ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            shouldLoop: false,
+            colors: const [
+              Color(0xFFFFD700), // Gold
+              Color(0xFFFFA500), // Orange
+              Color(0xFFFF6347), // Tomato
+              Color(0xFF98FB98), // Pale Green
+              Color(0xFF87CEEB), // Sky Blue
+              Color(0xFFDDA0DD), // Plum
+            ],
+            createParticlePath: (size) {
+              final path = Path();
+              path.addOval(Rect.fromCircle(center: Offset.zero, radius: size.width / 2));
+              return path;
+            },
+          ),
+        ),
+        // Congrats message
+        if (_confettiController.state == ConfettiControllerState.playing)
+          Positioned(
+            top: 100,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFD700),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Text(
+                  '🎉 Congrats! 🎉',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
   Widget _buildHomeContent() {
-    return Column(
-      children: [
-        // Scrollable task area
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Task Grid Section
-                if (_data.tasks.isEmpty)
-                  _buildEmptyState()
-                else
-                  TaskGrid(
-                    data: _data,
-                    settings: _settings,
-                    onToggleCompletion: _toggleCompletion,
-                    onRemoveTask: _removeTask,
-                  ),
-              ],
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Task Grid Section
+          if (_data.tasks.isEmpty)
+            _buildEmptyState()
+          else
+            TaskGrid(
+              data: _data,
+              settings: _settings,
+              onToggleCompletion: _toggleCompletion,
+              onRemoveTask: _removeTask,
             ),
-          ),
-        ),
-        // Fixed chart at bottom
-        if (_data.tasks.isNotEmpty)
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(
-                top: BorderSide(color: Colors.grey.shade200, width: 1),
-              ),
-            ),
-            child: SafeArea(
-              top: false,
-              bottom: false,
-              child: CompletionChart(data: _data, settings: _settings),
-            ),
-          ),
-      ],
+          // Completion chart below tasks
+          if (_data.tasks.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            CompletionChart(data: _data, settings: _settings),
+          ],
+        ],
+      ),
     );
   }
 

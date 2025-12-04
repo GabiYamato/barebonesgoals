@@ -49,12 +49,16 @@ class TaskGrid extends StatelessWidget {
         // Calculate available width for cells
         // Total width - task name width - gap - today's square cell width - spacing
         final availableWidth =
-            constraints.maxWidth - _taskNameWidth - _taskNameGap - _todayCellWidth - _cellSpacing;
+            constraints.maxWidth -
+            _taskNameWidth -
+            _taskNameGap -
+            _todayCellWidth -
+            _cellSpacing;
         final numberOfOtherDays = settings.daysShownInTaskSection - 1;
 
         // Calculate cell width for non-today cells
         final totalSpacing = _cellSpacing * (numberOfOtherDays - 1);
-        final otherCellWidth = numberOfOtherDays > 0 
+        final otherCellWidth = numberOfOtherDays > 0
             ? (availableWidth - totalSpacing) / numberOfOtherDays
             : 0.0;
 
@@ -66,13 +70,7 @@ class TaskGrid extends StatelessWidget {
             const SizedBox(height: 8),
             // Task rows
             ...sortedTasks.map((task) {
-              return _buildTaskRow(
-                context,
-                task,
-                days,
-                today,
-                otherCellWidth,
-              );
+              return _buildTaskRow(context, task, days, today, otherCellWidth);
             }),
           ],
         );
@@ -80,7 +78,11 @@ class TaskGrid extends StatelessWidget {
     );
   }
 
-  Widget _buildDayLabelsRow(List<DateTime> days, DateTime today, double otherCellWidth) {
+  Widget _buildDayLabelsRow(
+    List<DateTime> days,
+    DateTime today,
+    double otherCellWidth,
+  ) {
     return Row(
       children: [
         // Empty space for task name column
@@ -103,7 +105,9 @@ class TaskGrid extends StatelessWidget {
                 style: TextStyle(
                   fontSize: isToday ? 10 : 10,
                   fontWeight: isToday ? FontWeight.w600 : FontWeight.normal,
-                  color: isToday ? AppTheme.completedColor : Colors.grey.shade600,
+                  color: isToday
+                      ? AppTheme.completedColor
+                      : Colors.grey.shade600,
                 ),
               ),
             ),
@@ -132,12 +136,8 @@ class TaskGrid extends StatelessWidget {
         children: [
           // Task name - tap to mark complete for today
           GestureDetector(
-            onTap: () => _showMarkCompleteDialog(
-              context,
-              task,
-              today,
-              isCompletedToday,
-            ),
+            onTap: () =>
+                _showMarkCompleteDialog(context, task, today, isCompletedToday),
             onLongPress: () => _showDeleteDialog(context, task),
             child: Container(
               width: _taskNameWidth,
@@ -183,7 +183,7 @@ class TaskGrid extends StatelessWidget {
             final isCompleted = task.isCompletedOn(day);
             final isLast = index == days.length - 1;
             final isToday = _isSameDay(day, today);
-            
+
             // Today's cell is square, others are narrower rectangles (same height)
             final cellWidth = isToday ? _todayCellWidth : otherCellWidth;
             final cellHeight = _taskRowHeight;
