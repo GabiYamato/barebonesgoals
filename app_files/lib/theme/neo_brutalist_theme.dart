@@ -1,141 +1,117 @@
 import 'package:flutter/material.dart';
 
-/// Neobrutalist design constants for the Daily Tracker app
-class NeoBrutalistTheme {
-  // Border styling
-  static const double borderWidth = 2.5;
-  static const double thinBorderWidth = 1.5;
-  static const Color borderColor = Colors.black;
+/// Clean white theme for the Daily Tracker app
+class AppTheme {
+  // Colors - Clean white/neutral palette
+  static const Color primaryColor = Color(0xFF1A1A1A);
+  static const Color secondaryColor = Color(0xFF666666);
+  static const Color backgroundColor = Color(0xFFFFFFFF);
+  static const Color surfaceColor = Color(0xFFF5F5F5);
+  static const Color completedColor = Color(0xFF34C759); // iOS green
+  static const Color chartColor = Color(0xFF007AFF); // iOS blue
+  static const Color errorColor = Color(0xFFFF3B30); // iOS red
 
-  // Colors
-  static const Color backgroundColor = Colors.white;
-  static const Color primaryColor = Colors.black;
-  static const Color completedColor = Color(0xFF00C853); // Pure green
-  static const Color chartColor = Color(0xFF2979FF); // Pure blue
-  static const Color accentColor = Color(0xFFFFD600); // Pure yellow
-
-  // Grid cell dimensions (GitHub-style)
-  static const double cellSize = 16.0;
-  static const double cellSpacing = 3.0;
-
-  // Typography
-  static const String fontFamily = 'Roboto';
-
-  static const TextStyle headingStyle = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 20,
-    fontWeight: FontWeight.w900,
-    color: primaryColor,
-    letterSpacing: 0,
-  );
-
-  static const TextStyle titleStyle = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 16,
-    fontWeight: FontWeight.w800,
-    color: primaryColor,
-  );
-
-  static const TextStyle bodyStyle = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 14,
-    fontWeight: FontWeight.w700,
-    color: primaryColor,
-  );
-
-  static const TextStyle buttonStyle = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 14,
-    fontWeight: FontWeight.w900,
-    color: primaryColor,
-  );
-
-  static const TextStyle smallStyle = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 11,
-    fontWeight: FontWeight.w700,
-    color: primaryColor,
-  );
-
-  // Box decoration
-  static BoxDecoration get boxDecoration => BoxDecoration(
-    color: backgroundColor,
-    border: Border.all(color: borderColor, width: borderWidth),
-  );
-
-  static BoxDecoration get thinBoxDecoration => BoxDecoration(
-    color: backgroundColor,
-    border: Border.all(color: borderColor, width: thinBorderWidth),
-  );
-
-  static BoxDecoration completedCellDecoration(bool isCompleted) =>
-      BoxDecoration(
-        color: isCompleted ? completedColor : backgroundColor,
-        border: Border.all(color: borderColor, width: thinBorderWidth),
-      );
-
-  // Button style
-  static ButtonStyle get buttonStyleFlat => ButtonStyle(
-    backgroundColor: WidgetStateProperty.all(backgroundColor),
-    foregroundColor: WidgetStateProperty.all(primaryColor),
-    shape: WidgetStateProperty.all(
-      const RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-        side: BorderSide(color: borderColor, width: borderWidth),
-      ),
-    ),
-    padding: WidgetStateProperty.all(
-      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    ),
-    textStyle: WidgetStateProperty.all(buttonStyle),
-    elevation: WidgetStateProperty.all(0),
-  );
-
-  // Input decoration
-  static InputDecoration inputDecoration(String hint) => InputDecoration(
-    hintText: hint,
-    hintStyle: bodyStyle.copyWith(color: Colors.black45),
-    filled: true,
-    fillColor: backgroundColor,
-    border: const OutlineInputBorder(
-      borderRadius: BorderRadius.zero,
-      borderSide: BorderSide(color: borderColor, width: borderWidth),
-    ),
-    enabledBorder: const OutlineInputBorder(
-      borderRadius: BorderRadius.zero,
-      borderSide: BorderSide(color: borderColor, width: borderWidth),
-    ),
-    focusedBorder: const OutlineInputBorder(
-      borderRadius: BorderRadius.zero,
-      borderSide: BorderSide(color: borderColor, width: 3),
-    ),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-  );
+  // Grid cell dimensions
+  static const double cellSize = 18.0;
+  static const double cellSpacing = 4.0;
 
   // Theme data for MaterialApp
   static ThemeData get themeData => ThemeData(
     useMaterial3: true,
-    scaffoldBackgroundColor: backgroundColor,
-    fontFamily: fontFamily,
-    colorScheme: const ColorScheme.light(
+    colorScheme: ColorScheme.light(
       primary: primaryColor,
-      onPrimary: backgroundColor,
+      secondary: secondaryColor,
       surface: backgroundColor,
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
       onSurface: primaryColor,
     ),
+    scaffoldBackgroundColor: backgroundColor,
     appBarTheme: const AppBarTheme(
+      centerTitle: true,
+      elevation: 0,
       backgroundColor: backgroundColor,
       foregroundColor: primaryColor,
+      surfaceTintColor: Colors.transparent,
+    ),
+    cardTheme: CardThemeData(
       elevation: 0,
-      centerTitle: false,
+      color: surfaceColor,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
-    textTheme: const TextTheme(
-      headlineMedium: headingStyle,
-      titleMedium: titleStyle,
-      bodyMedium: bodyStyle,
-      labelMedium: buttonStyle,
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: backgroundColor,
+      indicatorColor: Colors.grey.shade200,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
     ),
-    elevatedButtonTheme: ElevatedButtonThemeData(style: buttonStyleFlat),
-    outlinedButtonTheme: OutlinedButtonThemeData(style: buttonStyleFlat),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: chartColor,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: surfaceColor,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: primaryColor, width: 1.5),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    ),
+    sliderTheme: SliderThemeData(
+      activeTrackColor: primaryColor,
+      inactiveTrackColor: Colors.grey.shade300,
+      thumbColor: primaryColor,
+      overlayColor: primaryColor.withAlpha(30),
+      trackHeight: 4,
+      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return Colors.white;
+        }
+        return Colors.white;
+      }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return completedColor;
+        }
+        return Colors.grey.shade300;
+      }),
+      trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+    ),
+    dividerTheme: DividerThemeData(
+      color: Colors.grey.shade200,
+      thickness: 1,
+    ),
+    listTileTheme: const ListTileThemeData(
+      contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+    ),
   );
+
+  // Cell decoration for completion grid
+  static BoxDecoration completedCellDecoration(bool isCompleted) =>
+      BoxDecoration(
+        color: isCompleted ? completedColor : Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(6),
+      );
 }

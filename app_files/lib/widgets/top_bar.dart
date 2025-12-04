@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../theme/neo_brutalist_theme.dart';
 
 class TopBar extends StatelessWidget {
   final int streak;
+  final VoidCallback? onSettingsTap;
 
-  const TopBar({super.key, required this.streak});
+  const TopBar({super.key, required this.streak, this.onSettingsTap});
 
   @override
   Widget build(BuildContext context) {
@@ -12,13 +12,14 @@ class TopBar extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: NeoBrutalistTheme.backgroundColor,
-        border: Border(
-          bottom: BorderSide(
-            color: NeoBrutalistTheme.borderColor,
-            width: NeoBrutalistTheme.borderWidth,
+        color: Theme.of(context).colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(20),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
-        ),
+        ],
       ),
       child: SafeArea(
         bottom: false,
@@ -26,23 +27,49 @@ class TopBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // App Title
-            const Text('DAILY TRACKER', style: NeoBrutalistTheme.headingStyle),
-            // Streak Indicator
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: NeoBrutalistTheme.boxDecoration,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.local_fire_department,
-                    size: 20,
-                    color: NeoBrutalistTheme.primaryColor,
+            Text(
+              'Daily Tracker',
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            Row(
+              children: [
+                // Streak Indicator
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
                   ),
-                  const SizedBox(width: 6),
-                  Text('STREAK: $streak', style: NeoBrutalistTheme.buttonStyle),
-                ],
-              ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.local_fire_department,
+                        size: 18,
+                        color: Colors.orange.shade700,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$streak',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Settings Button
+                IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: onSettingsTap,
+                ),
+              ],
             ),
           ],
         ),

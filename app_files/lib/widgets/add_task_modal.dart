@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme/neo_brutalist_theme.dart';
 
 class AddTaskModal extends StatefulWidget {
   final Function(String taskName) onAddTask;
@@ -30,54 +29,65 @@ class _AddTaskModalState extends State<AddTaskModal> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: NeoBrutalistTheme.backgroundColor,
-        border: Border(
-          top: BorderSide(
-            color: NeoBrutalistTheme.borderColor,
-            width: NeoBrutalistTheme.borderWidth,
-          ),
-        ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Title
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              decoration: NeoBrutalistTheme.boxDecoration,
-              child: const Text(
-                'ADD NEW TASK',
-                style: NeoBrutalistTheme.titleStyle,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Input field
-            TextField(
-              controller: _controller,
-              style: NeoBrutalistTheme.bodyStyle,
-              decoration: NeoBrutalistTheme.inputDecoration('Enter task name'),
-              textCapitalization: TextCapitalization.words,
-              onSubmitted: (_) => _submit(),
-            ),
-            const SizedBox(height: 16),
-            // Add button
-            SizedBox(
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _submit,
-                style: NeoBrutalistTheme.buttonStyleFlat,
-                child: const Text(
-                  'ADD TASK',
-                  style: NeoBrutalistTheme.buttonStyle,
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 12,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Drag handle
+              Container(
+                width: 36,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(3),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+              // Title
+              Text(
+                'New Task',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _controller,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'Task name',
+                  hintStyle: TextStyle(color: Colors.grey.shade400),
+                  prefixIcon: Icon(Icons.task_alt, color: Colors.grey.shade400),
+                ),
+                textCapitalization: TextCapitalization.words,
+                onSubmitted: (_) => _submit(),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: FilledButton(
+                  onPressed: _submit,
+                  child: const Text(
+                    'Add Task',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

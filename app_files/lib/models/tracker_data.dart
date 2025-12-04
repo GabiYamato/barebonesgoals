@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'task.dart';
 
 class TrackerData {
@@ -103,4 +104,49 @@ class TrackerData {
   }
 
   factory TrackerData.empty() => TrackerData(tasks: []);
+
+  /// Generate sample data for testing
+  factory TrackerData.sampleData() {
+    final random = Random(42); // Fixed seed for consistent data
+    final now = DateTime.now();
+    
+    // Sample task names
+    final taskNames = [
+      'Exercise',
+      'Read',
+      'Meditate',
+      'Drink Water',
+      'Journal',
+    ];
+    
+    final tasks = <Task>[];
+    
+    for (int i = 0; i < taskNames.length; i++) {
+      final completions = <String, bool>{};
+      
+      // Generate completions for last 90 days
+      for (int day = 0; day < 90; day++) {
+        final date = DateTime(now.year, now.month, now.day - day);
+        final key = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+        
+        // Different completion rates for different tasks
+        // Exercise: ~70% completion
+        // Read: ~80% completion
+        // Meditate: ~60% completion
+        // Drink Water: ~90% completion
+        // Journal: ~50% completion
+        final completionRates = [0.7, 0.8, 0.6, 0.9, 0.5];
+        completions[key] = random.nextDouble() < completionRates[i];
+      }
+      
+      tasks.add(Task(
+        id: 'sample_$i',
+        name: taskNames[i],
+        createdAt: DateTime(now.year, now.month - 3, 1),
+        completions: completions,
+      ));
+    }
+    
+    return TrackerData(tasks: tasks);
+  }
 }
