@@ -5,6 +5,7 @@ import '../models/app_settings.dart';
 class StorageService {
   static const String _storageKey = 'tracker_data';
   static const String _settingsKey = 'app_settings';
+  static const String _hasSeenIntroKey = 'has_seen_intro';
 
   static Future<TrackerData> loadData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -49,5 +50,16 @@ class StorageService {
   static Future<void> saveSettings(AppSettings settings) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_settingsKey, settings.toJsonString());
+  }
+
+  // First-run intro flag
+  static Future<bool> hasSeenIntro() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_hasSeenIntroKey) ?? false;
+  }
+
+  static Future<void> setHasSeenIntro(bool seen) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_hasSeenIntroKey, seen);
   }
 }

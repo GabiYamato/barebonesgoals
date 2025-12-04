@@ -11,6 +11,7 @@ import 'widgets/add_task_modal.dart';
 import 'widgets/completion_chart.dart';
 import 'screens/settings_screen.dart';
 import 'screens/month_detail_screen.dart';
+import 'screens/splash_screen.dart';
 import 'screens/intro_screen.dart';
 
 void main() {
@@ -56,15 +57,19 @@ class _DailyTrackerAppState extends State<DailyTrackerApp> {
       title: 'Daily Tracker',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeData,
-      home: _isLoading
-          ? const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            )
-          : _hasSeenIntro
+    home: _isLoading
+      ? const Scaffold(body: Center(child: CircularProgressIndicator()))
+      : _hasSeenIntro
               ? const TrackerHomePage()
-              : IntroScreen(onDone: _onIntroDone),
+              : SplashScreen(
+                  onStart: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => IntroScreen(onDone: _onIntroDone),
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }
@@ -87,7 +92,9 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
   @override
   void initState() {
     super.initState();
-    _confettiController = ConfettiController(duration: const Duration(seconds: 2));
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 2),
+    );
     _loadData();
   }
 
@@ -304,7 +311,10 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
                       const Spacer(),
                       const Text(
                         'Daily Progress:',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       _buildTodayProgressBar(),
@@ -322,37 +332,48 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
               ),
             ],
           ),
-          body: _currentIndex == 0 ? _buildHomeContent() : _buildHistoryContent(),
+          body: _currentIndex == 0
+              ? _buildHomeContent()
+              : _buildHistoryContent(),
           bottomNavigationBar: Container(
             decoration: BoxDecoration(
+              color: Colors.white,
               border: Border(
                 top: BorderSide(color: Colors.grey.shade200, width: 1),
               ),
             ),
-            child: NavigationBar(
-              selectedIndex: _currentIndex == 0 ? 0 : 2,
-              onDestinationSelected: _onNavTap,
-              height: 60,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: 'Home',
+            height: 60,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                // Home tab
+                _buildNavItem(
+                  index: 0,
+                  icon: Icons.home_outlined,
+                  selectedIcon: Icons.home,
+                  isSelected: _currentIndex == 0,
+                  onTap: () => _onNavTap(0),
+                ),
+                // Add tab
+                _buildNavItem(
+                  index: 1,
+                  icon: Icons.add_circle_outline,
+                  selectedIcon: Icons.add_circle,
+                  isSelected: false, // Add is never "selected"
+                  onTap: () => _onNavTap(1),
+                  iconSize: 32,
+                ),
+                // History tab
+                _buildNavItem(
+                  index: 2,
+                  icon: Icons.calendar_month_outlined,
+                  selectedIcon: Icons.calendar_month,
+                  isSelected: _currentIndex == 1,
+                  onTap: () => _onNavTap(2),
+                ),
+              ],
             ),
-            NavigationDestination(
-              icon: Icon(Icons.add_circle_outline, size: 32),
-              selectedIcon: Icon(Icons.add_circle, size: 32),
-              label: 'Add',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.calendar_month_outlined),
-              selectedIcon: Icon(Icons.calendar_month),
-              label: 'History',
-            ),
-          ],
-        ),
-      ),
+          ),
         ),
         // Confetti widget for 100% completion celebration
         Align(
@@ -371,43 +392,41 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
             ],
             createParticlePath: (size) {
               final path = Path();
-              path.addOval(Rect.fromCircle(center: Offset.zero, radius: size.width / 2));
+              path.addOval(
+                Rect.fromCircle(center: Offset.zero, radius: size.width / 2),
+              );
               return path;
             },
           ),
         ),
-        // Congrats message
-        if (_confettiController.state == ConfettiControllerState.playing)
-          Positioned(
-            top: 100,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFD700),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: const Text(
-                  '🎉 Congrats! 🎉',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
       ],
+    );
+  }
+
+  Widget _buildNavItem({
+    required int index,
+    required IconData icon,
+    required IconData selectedIcon,
+    required bool isSelected,
+    required VoidCallback onTap,
+    double iconSize = 24,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 56,
+        height: 40,
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.grey.shade800 : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(
+          isSelected ? selectedIcon : icon,
+          size: iconSize,
+          color: isSelected ? Colors.white : Colors.grey.shade600,
+        ),
+      ),
     );
   }
 

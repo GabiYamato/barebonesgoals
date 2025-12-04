@@ -40,9 +40,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _navigateToImportExport() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => ImportExportScreen(
-          onDataChanged: widget.onDataChanged,
-        ),
+        builder: (context) =>
+            ImportExportScreen(onDataChanged: widget.onDataChanged),
       ),
     );
   }

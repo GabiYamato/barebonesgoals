@@ -1,132 +1,188 @@
 import 'package:flutter/material.dart';
-import 'package:introduction_screen/introduction_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/neo_brutalist_theme.dart';
+import '../services/storage_service.dart';
+import '../models/task.dart';
+import '../models/tracker_data.dart';
 
-class IntroScreen extends StatelessWidget {
-  final VoidCallback onDone;
+class IntroScreen extends StatefulWidget {
+  final VoidCallback? onDone;
 
-  const IntroScreen({super.key, required this.onDone});
+  const IntroScreen({super.key, this.onDone});
+
+  @override
+  State<IntroScreen> createState() => _IntroScreenState();
+}
+
+class _IntroScreenState extends State<IntroScreen> {
+  final PageController _pageController = PageController();
+  final List<String> _sampleTasks = [
+    'GYM',
+    '8k Steps',
+    'Leetcode',
+    'Skill',
+    'Creative',
+    'Coding',
+  ];
+  final Set<String> _selected = {};
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _toggle(String name) {
+    setState(() {
+      if (_selected.contains(name)) _selected.remove(name);
+      else _selected.add(name);
+    });
+  }
+
+  Future<void> _onStartPressed() async {
+    // Persist selected sample tasks
+    final current = await StorageService.loadData();
+    TrackerData newData = current;
+
+    for (final name in _selected) {
+      final task = Task(
+        id: DateTime.now().millisecondsSinceEpoch.toString() + name,
+        name: name,
+        createdAt: DateTime.now(),
+      );
+      newData = newData.addTask(task);
+    }
+
+    await StorageService.saveData(newData);
+    await StorageService.setHasSeenIntro(true);
+
+    // Notify parent
+    widget.onDone?.call();
+
+    // Pop back to main (home will update based on flag)
+    if (mounted) Navigator.of(context).popUntil((r) => r.isFirst);
+  }
+
+  Widget _buildPage1(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const SizedBox(height: 12),
+        Text(
+          'Welcome to Daily Tracker',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Build streaks, track consistency, and make progress one day at a time.',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.grey.shade600,
+              ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPage2(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Pick a few starter tasks',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+        const SizedBox(height: 18),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 10,
+          runSpacing: 10,
+          children: _sampleTasks.map((t) {
+            final selected = _selected.contains(t);
+            return FilterChip(
+              label: Text(t),
+              selected: selected,
+              checkmarkColor: Colors.white,
+              selectedColor: AppTheme.completedColor,
+              onSelected: (_) => _toggle(t),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 28),
+        Text(
+          'Tap to select tasks you want to start with. You can edit them later.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.grey.shade600,
+              ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 18),
+        // Start button
+        SizedBox(
+          width: 140,
+          child: ElevatedButton(
+            onPressed: _onStartPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.completedColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6), // less rounded
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+            child: const Text('Start.'), // single-line text
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return IntroductionScreen(
-      pages: [
-        // Page 1: Welcome
-        PageViewModel(
-          title: "Welcome to Daily Tracker",
-          body: "Build better habits by tracking your daily goals. Stay consistent and watch your progress grow over time.",
-          image: _buildImage(
-            Icons.task_alt,
-            AppTheme.completedColor,
-          ),
-          decoration: _getPageDecoration(),
-        ),
-        // Page 2: How it works
-        PageViewModel(
-          title: "Track Your Progress",
-          body: "Add your daily goals, mark them complete, and see your completion rate improve. The progress bar changes color based on how well you're doing!",
-          image: _buildImage(
-            Icons.trending_up,
-            const Color(0xFF007AFF),
-          ),
-          decoration: _getPageDecoration(),
-        ),
-      ],
-      onDone: () async {
-        // Save that user has seen intro
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('hasSeenIntro', true);
-        onDone();
-      },
-      onSkip: () async {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('hasSeenIntro', true);
-        onDone();
-      },
-      showSkipButton: true,
-      skip: Text(
-        "Skip",
-        style: TextStyle(
-          color: Colors.grey.shade600,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      next: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppTheme.completedColor,
-          borderRadius: BorderRadius.circular(25),
-        ),
-        child: const Text(
-          "Next",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                children: [
+                  _buildPage1(context),
+                  _buildPage2(context),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      _pageController.previousPage(
+                          duration: const Duration(milliseconds: 300), curve: Curves.ease);
+                    },
+                    child: const Text('Back'),
+                  ),
+                  Row(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
+                        },
+                        child: const Text('Next'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
-      done: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppTheme.completedColor,
-          borderRadius: BorderRadius.circular(25),
-        ),
-        child: const Text(
-          "Get Started",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      dotsDecorator: DotsDecorator(
-        size: const Size(10, 10),
-        color: Colors.grey.shade300,
-        activeSize: const Size(22, 10),
-        activeColor: AppTheme.completedColor,
-        activeShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5),
-        ),
-      ),
-      globalBackgroundColor: Colors.white,
-      curve: Curves.easeInOut,
-    );
-  }
-
-  Widget _buildImage(IconData icon, Color color) {
-    return Center(
-      child: Container(
-        width: 200,
-        height: 200,
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          icon,
-          size: 100,
-          color: color,
-        ),
-      ),
-    );
-  }
-
-  PageDecoration _getPageDecoration() {
-    return PageDecoration(
-      titleTextStyle: const TextStyle(
-        fontSize: 28,
-        fontWeight: FontWeight.bold,
-        color: Colors.black,
-      ),
-      bodyTextStyle: TextStyle(
-        fontSize: 16,
-        color: Colors.grey.shade600,
-        height: 1.5,
-      ),
-      imagePadding: const EdgeInsets.only(top: 80, bottom: 24),
-      contentMargin: const EdgeInsets.symmetric(horizontal: 24),
-      pageColor: Colors.white,
     );
   }
 }
