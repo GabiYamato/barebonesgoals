@@ -12,7 +12,6 @@ import 'widgets/completion_chart.dart';
 import 'screens/settings_screen.dart';
 import 'screens/month_detail_screen.dart';
 import 'screens/splash_screen.dart';
-import 'screens/intro_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,15 +60,7 @@ class _DailyTrackerAppState extends State<DailyTrackerApp> {
           ? const Scaffold(body: Center(child: CircularProgressIndicator()))
           : _hasSeenIntro
           ? const TrackerHomePage()
-          : SplashScreen(
-              onStart: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => IntroScreen(onDone: _onIntroDone),
-                  ),
-                );
-              },
-            ),
+          : SplashScreen(onIntroDone: _onIntroDone),
     );
   }
 }

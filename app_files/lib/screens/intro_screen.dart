@@ -33,10 +33,11 @@ class _IntroScreenState extends State<IntroScreen> {
 
   void _toggle(String name) {
     setState(() {
-      if (_selected.contains(name))
+      if (_selected.contains(name)) {
         _selected.remove(name);
-      else
+      } else {
         _selected.add(name);
+      }
     });
   }
 

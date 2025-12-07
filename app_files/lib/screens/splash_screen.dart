@@ -3,8 +3,8 @@ import '../theme/neo_brutalist_theme.dart';
 import 'intro_screen.dart';
 
 class SplashScreen extends StatelessWidget {
-  final VoidCallback? onStart;
-  const SplashScreen({super.key, this.onStart});
+  final VoidCallback? onIntroDone;
+  const SplashScreen({super.key, this.onIntroDone});
 
   @override
   Widget build(BuildContext context) {
@@ -33,15 +33,13 @@ class SplashScreen extends StatelessWidget {
               SizedBox(
                 width: 140,
                 child: ElevatedButton(
-                  onPressed:
-                      onStart ??
-                      () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => IntroScreen(onDone: () {}),
-                          ),
-                        );
-                      },
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => IntroScreen(onDone: onIntroDone),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.completedColor,
                     shape: RoundedRectangleBorder(
