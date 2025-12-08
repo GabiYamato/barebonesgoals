@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'models/task.dart';
 import 'models/tracker_data.dart';
 import 'models/app_settings.dart';
@@ -36,8 +35,7 @@ class _DailyTrackerAppState extends State<DailyTrackerApp> {
   }
 
   Future<void> _checkFirstTime() async {
-    final prefs = await SharedPreferences.getInstance();
-    final hasSeenIntro = prefs.getBool('hasSeenIntro') ?? false;
+    final hasSeenIntro = await StorageService.hasSeenIntro();
     setState(() {
       _hasSeenIntro = hasSeenIntro;
       _isLoading = false;
@@ -136,6 +134,20 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
   void _removeTask(String taskId) {
     setState(() {
       _data = _data.removeTask(taskId);
+    });
+    _saveData();
+  }
+
+  void _renameTask(String taskId, String newName) {
+    setState(() {
+      _data = _data.renameTask(taskId, newName);
+    });
+    _saveData();
+  }
+
+  void _reorderTasks(List<Task> newOrder) {
+    setState(() {
+      _data = _data.reorderTasks(newOrder);
     });
     _saveData();
   }
@@ -326,43 +338,46 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
           body: _currentIndex == 0
               ? _buildHomeContent()
               : _buildHistoryContent(),
-          bottomNavigationBar: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(
-                top: BorderSide(color: Colors.grey.shade200, width: 1),
+          bottomNavigationBar: SafeArea(
+            top: false,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  top: BorderSide(color: Colors.grey.shade200, width: 1),
+                ),
               ),
-            ),
-            height: 60,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                // Home tab
-                _buildNavItem(
-                  index: 0,
-                  icon: Icons.home_outlined,
-                  selectedIcon: Icons.home,
-                  isSelected: _currentIndex == 0,
-                  onTap: () => _onNavTap(0),
-                ),
-                // Add tab
-                _buildNavItem(
-                  index: 1,
-                  icon: Icons.add_circle_outline,
-                  selectedIcon: Icons.add_circle,
-                  isSelected: false, // Add is never "selected"
-                  onTap: () => _onNavTap(1),
-                  iconSize: 32,
-                ),
-                // History tab
-                _buildNavItem(
-                  index: 2,
-                  icon: Icons.calendar_month_outlined,
-                  selectedIcon: Icons.calendar_month,
-                  isSelected: _currentIndex == 1,
-                  onTap: () => _onNavTap(2),
-                ),
-              ],
+              height: 60,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  // Home tab
+                  _buildNavItem(
+                    index: 0,
+                    icon: Icons.home_outlined,
+                    selectedIcon: Icons.home,
+                    isSelected: _currentIndex == 0,
+                    onTap: () => _onNavTap(0),
+                  ),
+                  // Add tab
+                  _buildNavItem(
+                    index: 1,
+                    icon: Icons.add_circle_outline,
+                    selectedIcon: Icons.add_circle,
+                    isSelected: false, // Add is never "selected"
+                    onTap: () => _onNavTap(1),
+                    iconSize: 32,
+                  ),
+                  // History tab
+                  _buildNavItem(
+                    index: 2,
+                    icon: Icons.calendar_month_outlined,
+                    selectedIcon: Icons.calendar_month,
+                    isSelected: _currentIndex == 1,
+                    onTap: () => _onNavTap(2),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -436,6 +451,8 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
               settings: _settings,
               onToggleCompletion: _toggleCompletion,
               onRemoveTask: _removeTask,
+              onRenameTask: _renameTask,
+              onReorderTasks: _reorderTasks,
             ),
           // Completion chart below tasks
           if (_data.tasks.isNotEmpty) ...[

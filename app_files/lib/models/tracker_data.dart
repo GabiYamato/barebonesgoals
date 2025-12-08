@@ -27,6 +27,21 @@ class TrackerData {
     );
   }
 
+  TrackerData renameTask(String taskId, String newName) {
+    return copyWith(
+      tasks: tasks.map((t) {
+        if (t.id == taskId) {
+          return t.copyWith(name: newName);
+        }
+        return t;
+      }).toList(),
+    );
+  }
+
+  TrackerData reorderTasks(List<Task> newOrder) {
+    return copyWith(tasks: newOrder);
+  }
+
   TrackerData toggleTaskCompletion(String taskId, DateTime date) {
     return copyWith(
       tasks: tasks.map((t) {

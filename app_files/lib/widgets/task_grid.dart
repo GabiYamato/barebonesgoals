@@ -9,6 +9,8 @@ class TaskGrid extends StatelessWidget {
   final AppSettings settings;
   final Function(String taskId, DateTime date) onToggleCompletion;
   final Function(String taskId) onRemoveTask;
+  final Function(String taskId, String newName)? onRenameTask;
+  final Function(List<Task> newOrder)? onReorderTasks;
 
   // Task row height (fixed vertical size)
   static const double _taskRowHeight = 42.0;
@@ -24,6 +26,8 @@ class TaskGrid extends StatelessWidget {
     required this.settings,
     required this.onToggleCompletion,
     required this.onRemoveTask,
+    this.onRenameTask,
+    this.onReorderTasks,
   });
 
   @override
@@ -34,15 +38,17 @@ class TaskGrid extends StatelessWidget {
     ).reversed.toList();
     final today = DateTime.now();
 
-    // Sort tasks: incomplete today first, then completed
+    // Sort tasks based on setting
     final sortedTasks = List<Task>.from(data.tasks);
-    sortedTasks.sort((a, b) {
-      final aCompleted = a.isCompletedOn(today);
-      final bCompleted = b.isCompletedOn(today);
-      if (aCompleted && !bCompleted) return 1;
-      if (!aCompleted && bCompleted) return -1;
-      return 0;
-    });
+    if (settings.sortCompletedToBottom) {
+      sortedTasks.sort((a, b) {
+        final aCompleted = a.isCompletedOn(today);
+        final bCompleted = b.isCompletedOn(today);
+        if (aCompleted && !bCompleted) return 1;
+        if (!aCompleted && bCompleted) return -1;
+        return 0;
+      });
+    }
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -138,7 +144,7 @@ class TaskGrid extends StatelessWidget {
           GestureDetector(
             onTap: () =>
                 _showMarkCompleteDialog(context, task, today, isCompletedToday),
-            onLongPress: () => _showDeleteDialog(context, task),
+            onLongPress: () => _showTaskOptionsMenu(context, task),
             child: Container(
               width: _taskNameWidth,
               height: _taskRowHeight,
@@ -197,6 +203,259 @@ class TaskGrid extends StatelessWidget {
           }),
         ],
       ),
+    );
+  }
+
+  void _showTaskOptionsMenu(BuildContext context, Task task) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        margin: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  task.name,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Divider(height: 1),
+              // Edit option
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _showEditDialog(context, task);
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.edit_outlined,
+                        size: 20,
+                        color: Colors.blue.shade600,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Edit Name',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.blue.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
+              // Reorder option
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _showReorderSheet(context);
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.swap_vert,
+                        size: 20,
+                        color: Colors.orange.shade600,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Reorder Tasks',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.orange.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
+              // Delete option
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _showDeleteDialog(context, task);
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.delete_outline,
+                        size: 20,
+                        color: AppTheme.errorColor,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Delete Task',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.errorColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w400),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showEditDialog(BuildContext context, Task task) {
+    final controller = TextEditingController(text: task.name);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Container(
+          margin: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 16),
+                const Text(
+                  'Edit Task Name',
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: TextField(
+                    controller: controller,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      hintText: 'Task name',
+                      filled: true,
+                      fillColor: Colors.grey.shade100,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.all(16),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Divider(height: 1),
+                InkWell(
+                  onTap: () {
+                    final newName = controller.text.trim();
+                    if (newName.isNotEmpty && onRenameTask != null) {
+                      onRenameTask!(task.id, newName);
+                    }
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      'Save',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w500,
+                        color: AppTheme.completedColor,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                const Divider(height: 1),
+                InkWell(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showReorderSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) =>
+          _ReorderTasksSheet(tasks: data.tasks, onReorder: onReorderTasks),
     );
   }
 
@@ -345,6 +604,159 @@ class TaskGrid extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ReorderTasksSheet extends StatefulWidget {
+  final List<Task> tasks;
+  final Function(List<Task> newOrder)? onReorder;
+
+  const _ReorderTasksSheet({required this.tasks, this.onReorder});
+
+  @override
+  State<_ReorderTasksSheet> createState() => _ReorderTasksSheetState();
+}
+
+class _ReorderTasksSheetState extends State<_ReorderTasksSheet> {
+  late List<Task> _tasks;
+
+  @override
+  void initState() {
+    super.initState();
+    _tasks = List.from(widget.tasks);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.7,
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Reorder Tasks',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Drag to reorder',
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 12),
+            const Divider(height: 1),
+            Flexible(
+              child: ReorderableListView.builder(
+                shrinkWrap: true,
+                itemCount: _tasks.length,
+                onReorder: (oldIndex, newIndex) {
+                  setState(() {
+                    if (newIndex > oldIndex) {
+                      newIndex -= 1;
+                    }
+                    final item = _tasks.removeAt(oldIndex);
+                    _tasks.insert(newIndex, item);
+                  });
+                },
+                itemBuilder: (context, index) {
+                  final task = _tasks[index];
+                  return Container(
+                    key: ValueKey(task.id),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border(
+                        bottom: BorderSide(color: Colors.grey.shade200),
+                      ),
+                    ),
+                    child: ListTile(
+                      leading: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: AppTheme.completedColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${index + 1}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.completedColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        task.name,
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      trailing: ReorderableDragStartListener(
+                        index: index,
+                        child: Icon(
+                          Icons.drag_handle,
+                          color: Colors.grey.shade400,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const Divider(height: 1),
+            InkWell(
+              onTap: () {
+                widget.onReorder?.call(_tasks);
+                Navigator.of(context).pop();
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Text(
+                  'Save Order',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.completedColor,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            InkWell(
+              onTap: () => Navigator.of(context).pop(),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w400),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -149,6 +149,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                 },
               ),
+              Divider(color: Colors.grey.shade200),
+              // Sort completed to bottom setting
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Sort Completed to Bottom',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Move completed tasks below incomplete ones',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch.adaptive(
+                      value: _settings.sortCompletedToBottom,
+                      onChanged: (value) {
+                        _updateSettings(
+                          _settings.copyWith(sortCompletedToBottom: value),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
 

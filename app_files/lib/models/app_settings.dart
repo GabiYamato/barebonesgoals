@@ -7,12 +7,14 @@ class AppSettings {
   final int daysShownInGraph;
   final GraphType graphType;
   final int daysShownInTaskSection;
+  final bool sortCompletedToBottom;
 
   AppSettings({
     this.showHistoryInGraph = false,
     this.daysShownInGraph = 30,
     this.graphType = GraphType.bar,
     this.daysShownInTaskSection = 7,
+    this.sortCompletedToBottom = true,
   });
 
   AppSettings copyWith({
@@ -20,6 +22,7 @@ class AppSettings {
     int? daysShownInGraph,
     GraphType? graphType,
     int? daysShownInTaskSection,
+    bool? sortCompletedToBottom,
   }) {
     return AppSettings(
       showHistoryInGraph: showHistoryInGraph ?? this.showHistoryInGraph,
@@ -27,6 +30,8 @@ class AppSettings {
       graphType: graphType ?? this.graphType,
       daysShownInTaskSection:
           daysShownInTaskSection ?? this.daysShownInTaskSection,
+      sortCompletedToBottom:
+          sortCompletedToBottom ?? this.sortCompletedToBottom,
     );
   }
 
@@ -36,6 +41,7 @@ class AppSettings {
       'daysShownInGraph': daysShownInGraph,
       'graphType': graphType.index,
       'daysShownInTaskSection': daysShownInTaskSection,
+      'sortCompletedToBottom': sortCompletedToBottom,
     };
   }
 
@@ -45,6 +51,7 @@ class AppSettings {
       daysShownInGraph: json['daysShownInGraph'] as int? ?? 30,
       graphType: GraphType.values[json['graphType'] as int? ?? 0],
       daysShownInTaskSection: json['daysShownInTaskSection'] as int? ?? 7,
+      sortCompletedToBottom: json['sortCompletedToBottom'] as bool? ?? true,
     );
   }
 
