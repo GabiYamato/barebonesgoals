@@ -145,7 +145,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 divisions: 11,
                 onChanged: (value) {
                   _updateSettings(
-                    _settings.copyWith(daysShownInTaskSection: value.toInt()),
+                    _settings.copyWith(
+                      daysShownInTaskSection: value.toInt(),
+                      daysShownInGraph: value.toInt(),
+                    ),
                   );
                 },
               ),
@@ -237,23 +240,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
               ),
-
-              Divider(color: Colors.grey.shade200),
-
-              _buildSliderTile(
-                title: 'Days Shown in Graph',
-                value: _settings.daysShownInGraph.toDouble(),
-                min: 7,
-                max: 90,
-                divisions: 83,
-                onChanged: (value) {
-                  _updateSettings(
-                    _settings.copyWith(daysShownInGraph: value.toInt()),
-                  );
-                },
-              ),
-
-              Divider(color: Colors.grey.shade200),
 
               // Graph Type
               InkWell(

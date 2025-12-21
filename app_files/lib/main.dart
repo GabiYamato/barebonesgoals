@@ -437,30 +437,45 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
   }
 
   Widget _buildHomeContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Task Grid Section
-          if (_data.tasks.isEmpty)
-            _buildEmptyState()
-          else
-            TaskGrid(
-              data: _data,
-              settings: _settings,
-              onToggleCompletion: _toggleCompletion,
-              onRemoveTask: _removeTask,
-              onRenameTask: _renameTask,
-              onReorderTasks: _reorderTasks,
+    return Column(
+      children: [
+        // Scrollable grid / empty state
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (_data.tasks.isEmpty)
+                  _buildEmptyState()
+                else
+                  TaskGrid(
+                    data: _data,
+                    settings: _settings,
+                    onToggleCompletion: _toggleCompletion,
+                    onRemoveTask: _removeTask,
+                    onRenameTask: _renameTask,
+                    onReorderTasks: _reorderTasks,
+                  ),
+              ],
             ),
-          // Completion chart below tasks
-          if (_data.tasks.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            CompletionChart(data: _data, settings: _settings),
-          ],
-        ],
-      ),
+          ),
+        ),
+        // Chart at the bottom with only needed height
+        if (_data.tasks.isNotEmpty)
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: Material(
+                elevation: 6,
+                borderRadius: BorderRadius.circular(16),
+                clipBehavior: Clip.antiAlias,
+                child: CompletionChart(data: _data, settings: _settings),
+              ),
+            ),
+          ),
+      ],
     );
   }
 

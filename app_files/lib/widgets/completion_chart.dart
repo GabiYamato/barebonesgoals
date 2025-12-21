@@ -39,7 +39,8 @@ class _CompletionChartState extends State<CompletionChart> {
 
   @override
   Widget build(BuildContext context) {
-    final days = TrackerData.getLastNDays(widget.settings.daysShownInGraph);
+    final daysCount = widget.settings.daysShownInTaskSection;
+    final days = TrackerData.getLastNDays(daysCount);
     final percentages = days
         .map((day) => widget.data.getCompletionPercentage(day))
         .toList();
@@ -167,7 +168,7 @@ class _CompletionChartState extends State<CompletionChart> {
             const SizedBox(height: 8),
             Center(
               child: Text(
-                'Last ${widget.settings.daysShownInGraph} days',
+                'Last $daysCount days',
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
             ),
