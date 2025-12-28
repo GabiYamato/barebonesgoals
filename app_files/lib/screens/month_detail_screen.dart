@@ -86,6 +86,21 @@ class _MonthDetailScreenState extends State<MonthDetailScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              onPressed: () => Navigator.of(context).maybePop(),
+              child: const Text('Save'),
+            ),
+          ),
+        ],
       ),
       body: _data.tasks.isEmpty
           ? _buildEmptyState(context)
@@ -150,6 +165,10 @@ class _MonthDetailScreenState extends State<MonthDetailScreen> {
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.black, width: 2),
+        boxShadow: const [
+          BoxShadow(offset: Offset(6, 6), color: Colors.black12, blurRadius: 0),
+        ],
       ),
       child: Column(
         children: [
@@ -232,110 +251,151 @@ class _MonthDetailScreenState extends State<MonthDetailScreen> {
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.black, width: 2),
+        boxShadow: const [
+          BoxShadow(offset: Offset(6, 6), color: Colors.black12, blurRadius: 0),
+        ],
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header row
-            Row(
-              children: [
-                const SizedBox(width: _taskNameWidth, height: _cellSize),
-                ...days.asMap().entries.map((entry) {
-                  final day = entry.value;
-                  return Container(
-                    width: _cellSize,
-                    height: _cellSize,
-                    margin: EdgeInsets.only(
-                      right: entry.key == days.length - 1 ? 0 : 4,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      '${day.day}',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            ),
-            const SizedBox(height: 8),
-            // Task rows
-            ..._data.tasks.map((task) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: _taskNameWidth,
-                      height: _cellSize,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        task.name,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    ...days.asMap().entries.map((entry) {
-                      final day = entry.value;
-                      final isFuture = day.isAfter(now);
-                      final isCompleted = !isFuture && task.isCompletedOn(day);
-                      final isToday =
-                          day.year == now.year &&
-                          day.month == now.month &&
-                          day.day == now.day;
-
-                      final color = isFuture
-                          ? Colors.grey.shade200
-                          : isCompleted
-                          ? AppTheme.completedColor
-                          : Colors.grey.shade300;
-
-                      return GestureDetector(
-                        onTap: isFuture
-                            ? null
-                            : () => _handleToggle(task.id, day),
-                        child: Container(
-                          width: _cellSize,
-                          height: _cellSize,
-                          margin: EdgeInsets.only(
-                            right: entry.key == days.length - 1 ? 0 : 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: isToday
-                                  ? AppTheme.chartColor
-                                  : Colors.transparent,
-                              width: isToday ? 2 : 0,
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ],
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Sticky task names
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: _taskNameWidth,
+                height: _cellSize,
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              );
-            }),
-          ],
-        ),
+                child: const Text(
+                  'Task',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              ..._data.tasks.map((task) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Container(
+                    width: _taskNameWidth,
+                    height: _cellSize,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.black, width: 1.5),
+                    ),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      task.name,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ],
+          ),
+          const SizedBox(width: 10),
+          // Scrollable day grid
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildDayHeaderRow(days),
+                  const SizedBox(height: 8),
+                  ..._data.tasks.map((task) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: days.asMap().entries.map((entry) {
+                          final day = entry.value;
+                          final isFuture = day.isAfter(now);
+                          final isCompleted = !isFuture && task.isCompletedOn(day);
+                          final isToday =
+                              day.year == now.year &&
+                              day.month == now.month &&
+                              day.day == now.day;
+
+                          final color = isFuture
+                              ? Colors.grey.shade200
+                              : isCompleted
+                                  ? AppTheme.completedColor
+                                  : Colors.grey.shade300;
+
+                          return GestureDetector(
+                            onTap: isFuture
+                                ? null
+                                : () => _handleToggle(task.id, day),
+                            child: Container(
+                              width: _cellSize,
+                              height: _cellSize,
+                              margin: EdgeInsets.only(
+                                right: entry.key == days.length - 1 ? 0 : 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: color,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: isToday
+                                      ? AppTheme.chartColor
+                                      : Colors.black,
+                                  width: isToday ? 2 : 1.4,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  }).toList(),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildDayHeaderRow(List<DateTime> days) {
+    return Row(
+      children: days.asMap().entries.map((entry) {
+        final day = entry.value;
+        return Container(
+          width: _cellSize,
+          height: _cellSize,
+          margin: EdgeInsets.only(
+            right: entry.key == days.length - 1 ? 0 : 4,
+          ),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            '${day.day}',
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

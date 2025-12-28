@@ -1,7 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import '../models/tracker_data.dart';
 import '../models/app_settings.dart';
 import '../theme/neo_brutalist_theme.dart';
+
+const double _chartSlotWidth = 22.0;
 
 class CompletionChart extends StatefulWidget {
   final TrackerData data;
@@ -39,141 +43,149 @@ class _CompletionChartState extends State<CompletionChart> {
 
   @override
   Widget build(BuildContext context) {
-    final daysCount = widget.settings.daysShownInTaskSection;
+    final daysCount = min(14, widget.settings.daysShownInGraph);
     final days = TrackerData.getLastNDays(daysCount);
     final percentages = days
         .map((day) => widget.data.getCompletionPercentage(day))
         .toList();
-    const double chartHeight = 100.0;
+    const double chartHeight = 140.0;
     const double xAxisHeight = 20.0;
     final streak = widget.data.calculateStreak();
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.bar_chart,
-                  color: Theme.of(context).colorScheme.primary,
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.bar_chart,
+                color: AppTheme.chartColor,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Completion Rate',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
+              ),
+              const Spacer(),
+              // Streak indicator
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade100,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.black, width: 1.5),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  'Completion Rate',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                // Streak indicator
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.local_fire_department,
-                        size: 16,
-                        color: Colors.orange.shade700,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.local_fire_department,
+                      size: 16,
+                      color: Colors.orange.shade800,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '$streak',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange.shade900,
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '$streak',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange.shade800,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Chart with Y-axis
+          SizedBox(
+            height: chartHeight + xAxisHeight,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Y-axis labels - properly aligned to chart area
+                SizedBox(
+                  width: 40,
+                  height: chartHeight,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Text(
+                          '100%',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Text(
+                          '50%',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Text(
+                          '0%',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey.shade700,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Chart with Y-axis
-            SizedBox(
-              height: chartHeight + xAxisHeight,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Y-axis labels - properly aligned to chart area
-                  SizedBox(
-                    width: 40,
-                    height: chartHeight,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 4),
-                          child: Text(
-                            '100%',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 4),
-                          child: Text(
-                            '50%',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 4),
-                          child: Text(
-                            '0%',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Chart content with clipping - scrolled to end
-                  Expanded(
-                    child: ClipRect(
-                      child: SingleChildScrollView(
-                        controller: _scrollController,
-                        scrollDirection: Axis.horizontal,
-                        child: _buildChartContent(
+                // Chart content with clipping - scrolled to end
+                Expanded(
+                  child: ClipRect(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final content = _buildChartContent(
                           days,
                           percentages,
                           chartHeight,
-                        ),
-                      ),
+                          constraints.maxWidth,
+                        );
+
+                        return SingleChildScrollView(
+                          controller: _scrollController,
+                          scrollDirection: Axis.horizontal,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minWidth: constraints.maxWidth,
+                            ),
+                            child: Center(child: content),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Center(
-              child: Text(
-                'Last $daysCount days',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-              ),
+          ),
+          const SizedBox(height: 8),
+          Center(
+            child: Text(
+              'Last $daysCount days',
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -182,18 +194,19 @@ class _CompletionChartState extends State<CompletionChart> {
     List<DateTime> days,
     List<double> percentages,
     double chartHeight,
+    double availableWidth,
   ) {
     switch (widget.settings.graphType) {
       case GraphType.bar:
-        return _buildBarChart(days, percentages, chartHeight);
+        return _buildBarChart(days, percentages, chartHeight, availableWidth);
       case GraphType.line:
-        return _buildLineChart(days, percentages, chartHeight);
+        return _buildLineChart(days, percentages, chartHeight, availableWidth);
       case GraphType.dots:
-        return _buildDotChart(days, percentages, chartHeight);
+        return _buildDotChart(days, percentages, chartHeight, availableWidth);
       case GraphType.area:
-        return _buildAreaChart(days, percentages, chartHeight);
+        return _buildAreaChart(days, percentages, chartHeight, availableWidth);
       case GraphType.stepped:
-        return _buildSteppedChart(days, percentages, chartHeight);
+        return _buildSteppedChart(days, percentages, chartHeight, availableWidth);
     }
   }
 
@@ -201,8 +214,13 @@ class _CompletionChartState extends State<CompletionChart> {
     List<DateTime> days,
     List<double> percentages,
     double chartHeight,
+    double availableWidth,
   ) {
+    const double barWidth = 18.0;
+    final contentWidth = max(percentages.length * _chartSlotWidth, availableWidth - 40);
+
     return SizedBox(
+      width: contentWidth,
       height: chartHeight + 20,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,7 +230,7 @@ class _CompletionChartState extends State<CompletionChart> {
           final day = days[index];
 
           return SizedBox(
-            width: 18,
+            width: _chartSlotWidth,
             child: Column(
               children: [
                 // Chart area
@@ -221,7 +239,7 @@ class _CompletionChartState extends State<CompletionChart> {
                   child: Align(
                     alignment: Alignment.bottomCenter,
                     child: Container(
-                      width: 14,
+                      width: barWidth,
                       height: barHeight.clamp(2.0, chartHeight),
                       decoration: BoxDecoration(
                         color: percentage > 0
@@ -238,7 +256,7 @@ class _CompletionChartState extends State<CompletionChart> {
                 const SizedBox(height: 4),
                 Text(
                   day.day.toString(),
-                  style: TextStyle(fontSize: 9, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.grey.shade700),
                 ),
               ],
             ),
@@ -252,9 +270,12 @@ class _CompletionChartState extends State<CompletionChart> {
     List<DateTime> days,
     List<double> percentages,
     double chartHeight,
+    double availableWidth,
   ) {
+    final contentWidth = max(percentages.length * _chartSlotWidth, availableWidth - 40);
+
     return SizedBox(
-      width: percentages.length * 18.0,
+      width: contentWidth,
       height: chartHeight + 20,
       child: Column(
         children: [
@@ -262,7 +283,7 @@ class _CompletionChartState extends State<CompletionChart> {
           SizedBox(
             height: chartHeight,
             child: CustomPaint(
-              size: Size(percentages.length * 18.0, chartHeight),
+              size: Size(percentages.length * _chartSlotWidth, chartHeight),
               painter: LineChartPainter(
                 percentages: percentages,
                 maxHeight: chartHeight,
@@ -275,13 +296,14 @@ class _CompletionChartState extends State<CompletionChart> {
             children: days
                 .map(
                   (day) => SizedBox(
-                    width: 18,
+                    width: _chartSlotWidth,
                     child: Text(
                       day.day.toString(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 9,
-                        color: Colors.grey.shade600,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.grey.shade700,
                       ),
                     ),
                   ),
@@ -297,8 +319,12 @@ class _CompletionChartState extends State<CompletionChart> {
     List<DateTime> days,
     List<double> percentages,
     double chartHeight,
+    double availableWidth,
   ) {
+    final contentWidth = max(percentages.length * _chartSlotWidth, availableWidth - 40);
+
     return SizedBox(
+      width: contentWidth,
       height: chartHeight + 20,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,7 +334,7 @@ class _CompletionChartState extends State<CompletionChart> {
           final day = days[index];
 
           return SizedBox(
-            width: 18,
+            width: _chartSlotWidth,
             child: Column(
               children: [
                 // Chart area with dot
@@ -318,7 +344,7 @@ class _CompletionChartState extends State<CompletionChart> {
                     children: [
                       Positioned(
                         top: dotY.clamp(0.0, chartHeight - 8),
-                        left: 5,
+                        left: (_chartSlotWidth - 8) / 2,
                         child: Container(
                           width: 8,
                           height: 8,
@@ -338,7 +364,7 @@ class _CompletionChartState extends State<CompletionChart> {
                 Text(
                   day.day.toString(),
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 9, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.grey.shade700),
                 ),
               ],
             ),
@@ -352,9 +378,12 @@ class _CompletionChartState extends State<CompletionChart> {
     List<DateTime> days,
     List<double> percentages,
     double chartHeight,
+    double availableWidth,
   ) {
+    final contentWidth = max(percentages.length * _chartSlotWidth, availableWidth - 40);
+
     return SizedBox(
-      width: percentages.length * 18.0,
+      width: contentWidth,
       height: chartHeight + 20,
       child: Column(
         children: [
@@ -362,7 +391,7 @@ class _CompletionChartState extends State<CompletionChart> {
           SizedBox(
             height: chartHeight,
             child: CustomPaint(
-              size: Size(percentages.length * 18.0, chartHeight),
+              size: Size(percentages.length * _chartSlotWidth, chartHeight),
               painter: AreaChartPainter(
                 percentages: percentages,
                 maxHeight: chartHeight,
@@ -375,13 +404,14 @@ class _CompletionChartState extends State<CompletionChart> {
             children: days
                 .map(
                   (day) => SizedBox(
-                    width: 18,
+                    width: _chartSlotWidth,
                     child: Text(
                       day.day.toString(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 9,
-                        color: Colors.grey.shade600,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.grey.shade700,
                       ),
                     ),
                   ),
@@ -397,9 +427,12 @@ class _CompletionChartState extends State<CompletionChart> {
     List<DateTime> days,
     List<double> percentages,
     double chartHeight,
+    double availableWidth,
   ) {
+    final contentWidth = max(percentages.length * _chartSlotWidth, availableWidth - 40);
+
     return SizedBox(
-      width: percentages.length * 18.0,
+      width: contentWidth,
       height: chartHeight + 20,
       child: Column(
         children: [
@@ -407,7 +440,7 @@ class _CompletionChartState extends State<CompletionChart> {
           SizedBox(
             height: chartHeight,
             child: CustomPaint(
-              size: Size(percentages.length * 18.0, chartHeight),
+              size: Size(percentages.length * _chartSlotWidth, chartHeight),
               painter: SteppedChartPainter(
                 percentages: percentages,
                 maxHeight: chartHeight,
@@ -420,13 +453,14 @@ class _CompletionChartState extends State<CompletionChart> {
             children: days
                 .map(
                   (day) => SizedBox(
-                    width: 18,
+                    width: _chartSlotWidth,
                     child: Text(
                       day.day.toString(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 9,
-                        color: Colors.grey.shade600,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.grey.shade700,
                       ),
                     ),
                   ),
@@ -451,11 +485,11 @@ class LineChartPainter extends CustomPainter {
 
     final paint = Paint()
       ..color = AppTheme.chartColor
-      ..strokeWidth = 2
+      ..strokeWidth = 2.4
       ..style = PaintingStyle.stroke;
 
     final path = Path();
-    const stepX = 18.0;
+    const stepX = _chartSlotWidth;
 
     for (int i = 0; i < percentages.length; i++) {
       final x = i * stepX + stepX / 2;
@@ -478,7 +512,7 @@ class LineChartPainter extends CustomPainter {
     for (int i = 0; i < percentages.length; i++) {
       final x = i * stepX + stepX / 2;
       final y = maxHeight - (percentages[i] / 100) * maxHeight;
-      canvas.drawCircle(Offset(x, y), 3, dotPaint);
+      canvas.drawCircle(Offset(x, y), 3.2, dotPaint);
     }
   }
 
@@ -496,7 +530,7 @@ class AreaChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (percentages.isEmpty) return;
 
-    const stepX = 18.0;
+    const stepX = _chartSlotWidth;
 
     // Area fill
     final areaPath = Path();
@@ -519,7 +553,7 @@ class AreaChartPainter extends CustomPainter {
     // Line on top
     final linePaint = Paint()
       ..color = AppTheme.chartColor
-      ..strokeWidth = 2
+      ..strokeWidth = 2.4
       ..style = PaintingStyle.stroke;
 
     final linePath = Path();
@@ -552,11 +586,11 @@ class SteppedChartPainter extends CustomPainter {
 
     final paint = Paint()
       ..color = AppTheme.chartColor
-      ..strokeWidth = 2
+      ..strokeWidth = 2.4
       ..style = PaintingStyle.stroke;
 
     final path = Path();
-    const stepX = 18.0;
+    const stepX = _chartSlotWidth;
 
     for (int i = 0; i < percentages.length; i++) {
       final x = i * stepX;

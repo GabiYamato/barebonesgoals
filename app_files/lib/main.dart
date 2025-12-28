@@ -199,85 +199,39 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
   Widget _buildTodayProgressBar() {
     final today = DateTime.now();
     final percentage = _data.getCompletionPercentage(today);
-    final progressValue = percentage / 100;
-
-    // Determine colors based on percentage
-    // 0-33% red, 33-66% yellow, 66-99% green, 100% gold
-    Color progressColor;
-    Color backgroundColor;
-    Color textColor;
-
-    if (percentage >= 100) {
-      progressColor = const Color(0xFFFFD700); // Gold
-      backgroundColor = const Color(0xFFFFF8DC); // Light gold
-      textColor = const Color(0xFFB8860B); // Dark gold text
-      // Trigger confetti if not shown yet
-      if (!_hasShownConfetti) {
-        _hasShownConfetti = true;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _confettiController.play();
-        });
-      }
-    } else {
-      _hasShownConfetti = false; // Reset when not 100%
-      if (percentage >= 66) {
-        progressColor = const Color(0xFF34C759); // Green
-        backgroundColor = const Color(0xFFD1FAE5); // Light green
-        textColor = progressValue > 0.5 ? Colors.white : Colors.green.shade800;
-      } else if (percentage >= 33) {
-        progressColor = const Color(0xFFFFCC00); // Yellow
-        backgroundColor = const Color(0xFFFFF9E6); // Light yellow
-        textColor = Colors.orange.shade900;
-      } else {
-        progressColor = const Color(0xFFFF3B30); // Red
-        backgroundColor = const Color(0xFFFFE5E5); // Light red
-        textColor = percentage > 15 ? Colors.white : Colors.red.shade800;
-      }
-    }
+    final progressValue = (percentage / 100).clamp(0.0, 1.0);
+    final progressColor = AppTheme.completedColor;
+    final backgroundColor = Colors.grey.shade200;
+    final textColor = progressValue >= 0.8 ? Colors.white : Colors.black;
 
     return Container(
-      width: 140,
       margin: const EdgeInsets.only(right: 8),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Progress bar
-          Expanded(
-            child: Container(
-              height: 24,
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: BorderRadius.circular(6),
+      child: SizedBox(
+        width: 120,
+        height: 24,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: Stack(
+            children: [
+              Container(color: backgroundColor),
+              FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: progressValue,
+                child: Container(color: progressColor),
               ),
-              child: Stack(
-                children: [
-                  // Progress fill
-                  FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: progressValue.clamp(0.0, 1.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: progressColor,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
+              Center(
+                child: Text(
+                  '${percentage.round()}%',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
                   ),
-                  // Percentage text centered
-                  Center(
-                    child: Text(
-                      '${percentage.round()}%',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: textColor,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -485,48 +439,52 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
       );
     }
 
-    return Column(
-      children: [
-        // Scrollable grid / empty state
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (_data.tasks.isEmpty)
-                  _buildEmptyState()
-                else
-                  TaskGrid(
-                    data: _data,
-                    settings: _settings,
-                    onToggleCompletion: _toggleCompletion,
-                    onRemoveTask: _removeTask,
-                    onRenameTask: _renameTask,
-                    onReorderTasks: _reorderTasks,
-                  ),
-              ],
-            ),
-          ),
+    return SafeArea(
+      top: false,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (_data.tasks.isEmpty)
+              _buildEmptyState()
+            else
+              TaskGrid(
+                data: _data,
+                settings: _settings,
+                onToggleCompletion: _toggleCompletion,
+                onRemoveTask: _removeTask,
+                onRenameTask: _renameTask,
+                onReorderTasks: _reorderTasks,
+              ),
+            if (showChart) ...[
+              const SizedBox(height: 20),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 820),
+                  child: _buildChartCard(),
+                ),
+              ),
+            ],
+            const SizedBox(height: 16),
+          ],
         ),
-        // Chart at the bottom with only needed height
-        if (showChart)
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: _buildChartCard(),
-            ),
-          ),
-      ],
+      ),
     );
   }
 
   Widget _buildChartCard() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
+    return DecoratedBox(
+      decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.black, width: 2.2),
+        boxShadow: const [
+          BoxShadow(offset: Offset(6, 6), blurRadius: 0, color: Colors.black12),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(4),
         child: CompletionChart(data: _data, settings: _settings),
       ),
     );
@@ -584,6 +542,10 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
     final monthName = _getMonthName(month.month);
     final year = month.year;
     final stats = _calculateMonthStats(month);
+    final topThree = _calculateTopThreeTasks(month);
+    final goalsAchieved = stats['goalsAchieved'] as int;
+    final totalDays = stats['totalDays'] as int;
+    final goalsPercent = totalDays > 0 ? ((goalsAchieved / totalDays) * 100).round() : 0;
 
     return GestureDetector(
       onTap: () {
@@ -622,98 +584,48 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
             ),
             const SizedBox(height: 16),
 
-            // Stats row
             Row(
               children: [
+                // Left: calendar progress preview
                 Expanded(
-                  child: _buildStatCard(
-                    icon: Icons.local_fire_department,
-                    iconColor: Colors.orange,
-                    label: 'Max Streak',
-                    value: '${stats['maxStreak']} days',
-                  ),
+                  flex: 1,
+                  child: _buildCalendarGrid(month),
                 ),
                 const SizedBox(width: 12),
+                // Right: stats
                 Expanded(
-                  child: _buildStatCard(
-                    icon: Icons.check_circle,
-                    iconColor: AppTheme.completedColor,
-                    label: 'Goal Achieved',
-                    value:
-                        '${stats['goalsAchieved']}/${stats['totalDays']} days',
+                  flex: 1,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildStatCard(
+                        icon: Icons.flag_circle,
+                        iconColor: AppTheme.chartColor,
+                        label: 'Goal Achieved',
+                        value: '$goalsAchieved/$totalDays ($goalsPercent%)',
+                      ),
+                      const SizedBox(height: 8),
+                      _buildStatCard(
+                        icon: Icons.local_fire_department,
+                        iconColor: Colors.orange,
+                        label: 'Max Streak',
+                        value: '${stats['maxStreak']} days',
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          _buildMedalChip('#1', topThree.isNotEmpty ? topThree[0] : null, const Color(0xFFFFD700)),
+                          const SizedBox(width: 6),
+                          _buildMedalChip('#2', topThree.length > 1 ? topThree[1] : null, const Color(0xFFC0C0C0)),
+                          const SizedBox(width: 6),
+                          _buildMedalChip('#3', topThree.length > 2 ? topThree[2] : null, const Color(0xFFCD7F32)),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-
-            // Most completed goal
-            if (stats['mostCompletedGoal'] != null)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.star, color: Colors.amber.shade700, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Most Consistent Goal',
-                            style: Theme.of(context).textTheme.labelSmall
-                                ?.copyWith(color: Colors.grey.shade600),
-                          ),
-                          Text(
-                            stats['mostCompletedGoal'],
-                            style: Theme.of(context).textTheme.titleSmall
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      '${stats['mostCompletedCount']} days',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.completedColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            const SizedBox(height: 16),
-
-            // Week day labels
-            Row(
-              children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-                  .map(
-                    (day) => SizedBox(
-                      width: AppTheme.cellSize + AppTheme.cellSpacing,
-                      child: Center(
-                        child: Text(
-                          day,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList(),
-            ),
-            const SizedBox(height: 8),
-
-            // Calendar grid
-            _buildCalendarGrid(month),
           ],
         ),
       ),
@@ -822,6 +734,64 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
       'mostCompletedGoal': mostCompletedGoal,
       'mostCompletedCount': mostCompletedCount,
     };
+  }
+
+  List<MapEntry<String, int>> _calculateTopThreeTasks(DateTime month) {
+    final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
+    final now = DateTime.now();
+    final counts = <String, int>{};
+
+    for (final task in _data.tasks) {
+      counts[task.name] = 0;
+    }
+
+    for (int day = 1; day <= daysInMonth; day++) {
+      final date = DateTime(month.year, month.month, day);
+      if (date.isAfter(now)) break;
+      for (final task in _data.tasks) {
+        if (task.isCompletedOn(date)) {
+          counts[task.name] = (counts[task.name] ?? 0) + 1;
+        }
+      }
+    }
+
+    final entries = counts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return entries.take(3).toList();
+  }
+
+  Widget _buildMedalChip(String label, MapEntry<String, int>? entry, Color color) {
+    final text = entry != null ? '${entry.key} (${entry.value})' : '—';
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withOpacity(0.5)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                text,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildCalendarGrid(DateTime month) {
