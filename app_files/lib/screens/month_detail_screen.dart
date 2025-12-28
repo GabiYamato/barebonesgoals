@@ -93,8 +93,13 @@ class _MonthDetailScreenState extends State<MonthDetailScreen> {
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               onPressed: () => Navigator.of(context).maybePop(),
               child: const Text('Save'),
@@ -324,7 +329,8 @@ class _MonthDetailScreenState extends State<MonthDetailScreen> {
                         children: days.asMap().entries.map((entry) {
                           final day = entry.value;
                           final isFuture = day.isAfter(now);
-                          final isCompleted = !isFuture && task.isCompletedOn(day);
+                          final isCompleted =
+                              !isFuture && task.isCompletedOn(day);
                           final isToday =
                               day.year == now.year &&
                               day.month == now.month &&
@@ -333,8 +339,8 @@ class _MonthDetailScreenState extends State<MonthDetailScreen> {
                           final color = isFuture
                               ? Colors.grey.shade200
                               : isCompleted
-                                  ? AppTheme.completedColor
-                                  : Colors.grey.shade300;
+                              ? AppTheme.completedColor
+                              : Colors.grey.shade300;
 
                           return GestureDetector(
                             onTap: isFuture
@@ -378,9 +384,7 @@ class _MonthDetailScreenState extends State<MonthDetailScreen> {
         return Container(
           width: _cellSize,
           height: _cellSize,
-          margin: EdgeInsets.only(
-            right: entry.key == days.length - 1 ? 0 : 4,
-          ),
+          margin: EdgeInsets.only(right: entry.key == days.length - 1 ? 0 : 4),
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: Colors.black,

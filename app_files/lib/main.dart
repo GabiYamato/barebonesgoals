@@ -545,7 +545,9 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
     final topThree = _calculateTopThreeTasks(month);
     final goalsAchieved = stats['goalsAchieved'] as int;
     final totalDays = stats['totalDays'] as int;
-    final goalsPercent = totalDays > 0 ? ((goalsAchieved / totalDays) * 100).round() : 0;
+    final goalsPercent = totalDays > 0
+        ? ((goalsAchieved / totalDays) * 100).round()
+        : 0;
 
     return GestureDetector(
       onTap: () {
@@ -587,10 +589,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
             Row(
               children: [
                 // Left: calendar progress preview
-                Expanded(
-                  flex: 1,
-                  child: _buildCalendarGrid(month),
-                ),
+                Expanded(flex: 1, child: _buildCalendarGrid(month)),
                 const SizedBox(width: 12),
                 // Right: stats
                 Expanded(
@@ -614,11 +613,23 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          _buildMedalChip('#1', topThree.isNotEmpty ? topThree[0] : null, const Color(0xFFFFD700)),
+                          _buildMedalChip(
+                            '#1',
+                            topThree.isNotEmpty ? topThree[0] : null,
+                            const Color(0xFFFFD700),
+                          ),
                           const SizedBox(width: 6),
-                          _buildMedalChip('#2', topThree.length > 1 ? topThree[1] : null, const Color(0xFFC0C0C0)),
+                          _buildMedalChip(
+                            '#2',
+                            topThree.length > 1 ? topThree[1] : null,
+                            const Color(0xFFC0C0C0),
+                          ),
                           const SizedBox(width: 6),
-                          _buildMedalChip('#3', topThree.length > 2 ? topThree[2] : null, const Color(0xFFCD7F32)),
+                          _buildMedalChip(
+                            '#3',
+                            topThree.length > 2 ? topThree[2] : null,
+                            const Color(0xFFCD7F32),
+                          ),
                         ],
                       ),
                     ],
@@ -760,7 +771,11 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
     return entries.take(3).toList();
   }
 
-  Widget _buildMedalChip(String label, MapEntry<String, int>? entry, Color color) {
+  Widget _buildMedalChip(
+    String label,
+    MapEntry<String, int>? entry,
+    Color color,
+  ) {
     final text = entry != null ? '${entry.key} (${entry.value})' : '—';
     return Expanded(
       child: Container(
@@ -775,17 +790,17 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
           children: [
             Text(
               label,
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: color,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w700, color: color),
             ),
             const SizedBox(width: 6),
             Flexible(
               child: Text(
                 text,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],

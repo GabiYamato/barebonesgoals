@@ -59,21 +59,21 @@ class _CompletionChartState extends State<CompletionChart> {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.bar_chart,
-                color: AppTheme.chartColor,
-              ),
+              Icon(Icons.bar_chart, color: AppTheme.chartColor),
               const SizedBox(width: 8),
               Text(
                 'Completion Rate',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w900,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
               ),
               const Spacer(),
               // Streak indicator
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.orange.shade100,
                   borderRadius: BorderRadius.circular(10),
@@ -206,7 +206,12 @@ class _CompletionChartState extends State<CompletionChart> {
       case GraphType.area:
         return _buildAreaChart(days, percentages, chartHeight, availableWidth);
       case GraphType.stepped:
-        return _buildSteppedChart(days, percentages, chartHeight, availableWidth);
+        return _buildSteppedChart(
+          days,
+          percentages,
+          chartHeight,
+          availableWidth,
+        );
     }
   }
 
@@ -217,7 +222,10 @@ class _CompletionChartState extends State<CompletionChart> {
     double availableWidth,
   ) {
     const double barWidth = 18.0;
-    final contentWidth = max(percentages.length * _chartSlotWidth, availableWidth - 40);
+    final contentWidth = max(
+      percentages.length * _chartSlotWidth,
+      availableWidth - 40,
+    );
 
     return SizedBox(
       width: contentWidth,
@@ -256,7 +264,11 @@ class _CompletionChartState extends State<CompletionChart> {
                 const SizedBox(height: 4),
                 Text(
                   day.day.toString(),
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.grey.shade700),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.grey.shade700,
+                  ),
                 ),
               ],
             ),
@@ -272,7 +284,10 @@ class _CompletionChartState extends State<CompletionChart> {
     double chartHeight,
     double availableWidth,
   ) {
-    final contentWidth = max(percentages.length * _chartSlotWidth, availableWidth - 40);
+    final contentWidth = max(
+      percentages.length * _chartSlotWidth,
+      availableWidth - 40,
+    );
 
     return SizedBox(
       width: contentWidth,
@@ -321,7 +336,10 @@ class _CompletionChartState extends State<CompletionChart> {
     double chartHeight,
     double availableWidth,
   ) {
-    final contentWidth = max(percentages.length * _chartSlotWidth, availableWidth - 40);
+    final contentWidth = max(
+      percentages.length * _chartSlotWidth,
+      availableWidth - 40,
+    );
 
     return SizedBox(
       width: contentWidth,
@@ -364,7 +382,11 @@ class _CompletionChartState extends State<CompletionChart> {
                 Text(
                   day.day.toString(),
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.grey.shade700),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.grey.shade700,
+                  ),
                 ),
               ],
             ),
@@ -380,7 +402,10 @@ class _CompletionChartState extends State<CompletionChart> {
     double chartHeight,
     double availableWidth,
   ) {
-    final contentWidth = max(percentages.length * _chartSlotWidth, availableWidth - 40);
+    final contentWidth = max(
+      percentages.length * _chartSlotWidth,
+      availableWidth - 40,
+    );
 
     return SizedBox(
       width: contentWidth,
@@ -429,7 +454,10 @@ class _CompletionChartState extends State<CompletionChart> {
     double chartHeight,
     double availableWidth,
   ) {
-    final contentWidth = max(percentages.length * _chartSlotWidth, availableWidth - 40);
+    final contentWidth = max(
+      percentages.length * _chartSlotWidth,
+      availableWidth - 40,
+    );
 
     return SizedBox(
       width: contentWidth,
