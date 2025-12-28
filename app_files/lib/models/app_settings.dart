@@ -2,12 +2,16 @@ import 'dart:convert';
 
 enum GraphType { bar, line, dots, area, stepped }
 
+enum ThemeScheme { palette, classic }
+
 class AppSettings {
   final bool showHistoryInGraph;
   final int daysShownInGraph;
   final GraphType graphType;
   final int daysShownInTaskSection;
   final bool sortCompletedToBottom;
+  final bool chartAsOverlay;
+  final ThemeScheme themeScheme;
 
   AppSettings({
     this.showHistoryInGraph = false,
@@ -15,6 +19,8 @@ class AppSettings {
     this.graphType = GraphType.bar,
     this.daysShownInTaskSection = 7,
     this.sortCompletedToBottom = true,
+    this.chartAsOverlay = false,
+    this.themeScheme = ThemeScheme.palette,
   });
 
   AppSettings copyWith({
@@ -23,6 +29,8 @@ class AppSettings {
     GraphType? graphType,
     int? daysShownInTaskSection,
     bool? sortCompletedToBottom,
+    bool? chartAsOverlay,
+    ThemeScheme? themeScheme,
   }) {
     return AppSettings(
       showHistoryInGraph: showHistoryInGraph ?? this.showHistoryInGraph,
@@ -32,6 +40,8 @@ class AppSettings {
           daysShownInTaskSection ?? this.daysShownInTaskSection,
       sortCompletedToBottom:
           sortCompletedToBottom ?? this.sortCompletedToBottom,
+      chartAsOverlay: chartAsOverlay ?? this.chartAsOverlay,
+      themeScheme: themeScheme ?? this.themeScheme,
     );
   }
 
@@ -42,6 +52,8 @@ class AppSettings {
       'graphType': graphType.index,
       'daysShownInTaskSection': daysShownInTaskSection,
       'sortCompletedToBottom': sortCompletedToBottom,
+      'chartAsOverlay': chartAsOverlay,
+      'themeScheme': themeScheme.index,
     };
   }
 
@@ -52,6 +64,13 @@ class AppSettings {
       graphType: GraphType.values[json['graphType'] as int? ?? 0],
       daysShownInTaskSection: json['daysShownInTaskSection'] as int? ?? 7,
       sortCompletedToBottom: json['sortCompletedToBottom'] as bool? ?? true,
+      chartAsOverlay: json['chartAsOverlay'] as bool? ?? false,
+      themeScheme:
+          ThemeScheme.values[(json['themeScheme'] as int?)?.clamp(
+                0,
+                ThemeScheme.values.length - 1,
+              ) ??
+              0],
     );
   }
 
@@ -73,6 +92,15 @@ class AppSettings {
         return 'Area Chart';
       case GraphType.stepped:
         return 'Stepped Chart';
+    }
+  }
+
+  static String themeSchemeToString(ThemeScheme scheme) {
+    switch (scheme) {
+      case ThemeScheme.palette:
+        return 'Bold Pink';
+      case ThemeScheme.classic:
+        return 'Classic Green';
     }
   }
 }

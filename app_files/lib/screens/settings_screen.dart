@@ -241,6 +241,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
 
+              Divider(color: Colors.grey.shade200),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Show Chart as Overlay',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Float the chart above tasks instead of below',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch.adaptive(
+                      value: _settings.chartAsOverlay,
+                      onChanged: (value) {
+                        _updateSettings(
+                          _settings.copyWith(chartAsOverlay: value),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
               // Graph Type
               InkWell(
                 onTap: () => _showGraphTypeSheet(),
@@ -274,6 +314,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ],
                   ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Theme Section
+          _buildSectionCard(
+            title: 'Theme',
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Color Scheme',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Choose the look and feel of the app',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildThemeOption(
+                      scheme: ThemeScheme.palette,
+                      title: 'Bold Pink',
+                      description: 'Black, pink, and light grey palette',
+                    ),
+                    const SizedBox(height: 8),
+                    _buildThemeOption(
+                      scheme: ThemeScheme.classic,
+                      title: 'Classic Green',
+                      description: 'White with green and blue accents',
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -568,6 +652,69 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeOption({
+    required ThemeScheme scheme,
+    required String title,
+    required String description,
+  }) {
+    final isSelected = _settings.themeScheme == scheme;
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () {
+        _updateSettings(_settings.copyWith(themeScheme: scheme));
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.grey.shade100 : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Colors.grey.shade300,
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Radio<ThemeScheme>(
+              value: scheme,
+              groupValue: _settings.themeScheme,
+              onChanged: (_) {
+                _updateSettings(_settings.copyWith(themeScheme: scheme));
+              },
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    description,
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              Icon(
+                Icons.check_circle,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+          ],
         ),
       ),
     );

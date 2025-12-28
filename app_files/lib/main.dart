@@ -53,7 +53,7 @@ class _DailyTrackerAppState extends State<DailyTrackerApp> {
     return MaterialApp(
       title: 'Daily Tracker',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.themeData,
+      theme: AppTheme.themeData(AppSettings().themeScheme),
       home: _isLoading
           ? const Scaffold(body: Center(child: CircularProgressIndicator()))
           : _hasSeenIntro
@@ -77,6 +77,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
   int _currentIndex = 0;
   late ConfettiController _confettiController;
   bool _hasShownConfetti = false;
+  static const double _chartOverlayHeight = 230;
 
   @override
   void initState() {
@@ -283,6 +284,9 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    AppTheme.setScheme(_settings.themeScheme);
+    final theme = AppTheme.themeData(_settings.themeScheme);
+
     if (_isLoading) {
       return Scaffold(
         body: Center(
@@ -293,119 +297,122 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
       );
     }
 
-    return Stack(
-      children: [
-        Scaffold(
-          appBar: AppBar(
-            centerTitle: false,
-            titleSpacing: 0,
-            leadingWidth: 48,
-            leading: Padding(
-              padding: const EdgeInsets.only(left: 12),
-              child: Icon(
-                Icons.check_box_outlined,
-                color: AppTheme.completedColor,
-                size: 28,
-              ),
-            ),
-            title: _currentIndex == 0
-                ? Row(
-                    children: [
-                      const Spacer(),
-                      const Text(
-                        'Daily Progress:',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      _buildTodayProgressBar(),
-                      const Spacer(),
-                    ],
-                  )
-                : const Text(
-                    'History',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.settings_outlined),
-                onPressed: _navigateToSettings,
-              ),
-            ],
-          ),
-          body: _currentIndex == 0
-              ? _buildHomeContent()
-              : _buildHistoryContent(),
-          bottomNavigationBar: SafeArea(
-            top: false,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade200, width: 1),
+    return Theme(
+      data: theme,
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: AppBar(
+              centerTitle: false,
+              titleSpacing: 0,
+              leadingWidth: 48,
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Icon(
+                  Icons.check_box_outlined,
+                  color: AppTheme.completedColor,
+                  size: 28,
                 ),
               ),
-              height: 60,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  // Home tab
-                  _buildNavItem(
-                    index: 0,
-                    icon: Icons.home_outlined,
-                    selectedIcon: Icons.home,
-                    isSelected: _currentIndex == 0,
-                    onTap: () => _onNavTap(0),
+              title: _currentIndex == 0
+                  ? Row(
+                      children: [
+                        const Spacer(),
+                        const Text(
+                          'Daily Progress:',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildTodayProgressBar(),
+                        const Spacer(),
+                      ],
+                    )
+                  : const Text(
+                      'History',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.settings_outlined),
+                  onPressed: _navigateToSettings,
+                ),
+              ],
+            ),
+            body: _currentIndex == 0
+                ? _buildHomeContent()
+                : _buildHistoryContent(),
+            bottomNavigationBar: SafeArea(
+              top: false,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(
+                    top: BorderSide(color: Colors.grey.shade200, width: 1),
                   ),
-                  // Add tab
-                  _buildNavItem(
-                    index: 1,
-                    icon: Icons.add_circle_outline,
-                    selectedIcon: Icons.add_circle,
-                    isSelected: false, // Add is never "selected"
-                    onTap: () => _onNavTap(1),
-                    iconSize: 32,
-                  ),
-                  // History tab
-                  _buildNavItem(
-                    index: 2,
-                    icon: Icons.calendar_month_outlined,
-                    selectedIcon: Icons.calendar_month,
-                    isSelected: _currentIndex == 1,
-                    onTap: () => _onNavTap(2),
-                  ),
-                ],
+                ),
+                height: 60,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    // Home tab
+                    _buildNavItem(
+                      index: 0,
+                      icon: Icons.home_outlined,
+                      selectedIcon: Icons.home,
+                      isSelected: _currentIndex == 0,
+                      onTap: () => _onNavTap(0),
+                    ),
+                    // Add tab
+                    _buildNavItem(
+                      index: 1,
+                      icon: Icons.add_circle_outline,
+                      selectedIcon: Icons.add_circle,
+                      isSelected: false, // Add is never "selected"
+                      onTap: () => _onNavTap(1),
+                      iconSize: 32,
+                    ),
+                    // History tab
+                    _buildNavItem(
+                      index: 2,
+                      icon: Icons.calendar_month_outlined,
+                      selectedIcon: Icons.calendar_month,
+                      isSelected: _currentIndex == 1,
+                      onTap: () => _onNavTap(2),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        // Confetti widget for 100% completion celebration
-        Align(
-          alignment: Alignment.topCenter,
-          child: ConfettiWidget(
-            confettiController: _confettiController,
-            blastDirectionality: BlastDirectionality.explosive,
-            shouldLoop: false,
-            colors: const [
-              Color(0xFFFFD700), // Gold
-              Color(0xFFFFA500), // Orange
-              Color(0xFFFF6347), // Tomato
-              Color(0xFF98FB98), // Pale Green
-              Color(0xFF87CEEB), // Sky Blue
-              Color(0xFFDDA0DD), // Plum
-            ],
-            createParticlePath: (size) {
-              final path = Path();
-              path.addOval(
-                Rect.fromCircle(center: Offset.zero, radius: size.width / 2),
-              );
-              return path;
-            },
+          // Confetti widget for 100% completion celebration
+          Align(
+            alignment: Alignment.topCenter,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirectionality: BlastDirectionality.explosive,
+              shouldLoop: false,
+              colors: const [
+                Color(0xFFFFD700), // Gold
+                Color(0xFFFFA500), // Orange
+                Color(0xFFFF6347), // Tomato
+                Color(0xFF98FB98), // Pale Green
+                Color(0xFF87CEEB), // Sky Blue
+                Color(0xFFDDA0DD), // Plum
+              ],
+              createParticlePath: (size) {
+                final path = Path();
+                path.addOval(
+                  Rect.fromCircle(center: Offset.zero, radius: size.width / 2),
+                );
+                return path;
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -437,6 +444,47 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
   }
 
   Widget _buildHomeContent() {
+    final showChart = _data.tasks.isNotEmpty;
+
+    if (_settings.chartAsOverlay && showChart) {
+      return Stack(
+        children: [
+          Positioned.fill(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(
+                16,
+              ).copyWith(bottom: _chartOverlayHeight + 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TaskGrid(
+                    data: _data,
+                    settings: _settings,
+                    onToggleCompletion: _toggleCompletion,
+                    onRemoveTask: _removeTask,
+                    onRenameTask: _renameTask,
+                    onReorderTasks: _reorderTasks,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            left: 12,
+            right: 12,
+            bottom: 12,
+            child: SafeArea(
+              top: false,
+              child: SizedBox(
+                height: _chartOverlayHeight,
+                child: _buildChartCard(),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
     return Column(
       children: [
         // Scrollable grid / empty state
@@ -462,20 +510,25 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
           ),
         ),
         // Chart at the bottom with only needed height
-        if (_data.tasks.isNotEmpty)
+        if (showChart)
           SafeArea(
             top: false,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: Material(
-                elevation: 6,
-                borderRadius: BorderRadius.circular(16),
-                clipBehavior: Clip.antiAlias,
-                child: CompletionChart(data: _data, settings: _settings),
-              ),
+              child: _buildChartCard(),
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildChartCard() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        color: AppTheme.surfaceColor,
+        child: CompletionChart(data: _data, settings: _settings),
+      ),
     );
   }
 
@@ -485,6 +538,27 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.edit_outlined, color: AppTheme.chartColor),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'Edit History: tap a month to adjust past days in a familiar grid.',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
           // Generate cards for the last 3 months
           ..._buildMonthCards(),
         ],
@@ -519,6 +593,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
               month: month,
               data: _data,
               settings: _settings,
+              onToggleCompletion: _toggleCompletion,
             ),
           ),
         );

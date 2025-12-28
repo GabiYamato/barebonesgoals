@@ -194,12 +194,23 @@ class TaskGrid extends StatelessWidget {
             final cellWidth = isToday ? _todayCellWidth : otherCellWidth;
             final cellHeight = _taskRowHeight;
 
-            return Container(
+            final cell = Container(
               width: cellWidth,
               height: cellHeight,
               margin: EdgeInsets.only(right: isLast ? 0 : _cellSpacing),
               decoration: AppTheme.completedCellDecoration(isCompleted),
             );
+
+            if (isToday) {
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () =>
+                    _showMarkCompleteDialog(context, task, day, isCompleted),
+                child: cell,
+              );
+            }
+
+            return cell;
           }),
         ],
       ),
