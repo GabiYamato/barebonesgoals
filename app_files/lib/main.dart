@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 import 'models/task.dart';
@@ -76,7 +78,6 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
   bool _isLoading = true;
   int _currentIndex = 0;
   late ConfettiController _confettiController;
-  bool _hasShownConfetti = false;
   static const double _chartOverlayHeight = 230;
 
   @override
@@ -208,29 +209,54 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
       margin: const EdgeInsets.only(right: 8),
       child: SizedBox(
         width: 120,
-        height: 24,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: Stack(
-            children: [
-              Container(color: backgroundColor),
-              FractionallySizedBox(
-                alignment: Alignment.centerLeft,
-                widthFactor: progressValue,
-                child: Container(color: progressColor),
-              ),
-              Center(
-                child: Text(
-                  '${percentage.round()}%',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
+        height: 26,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final barWidth = constraints.maxWidth * progressValue;
+            return Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    borderRadius: BorderRadius.circular(1),
+                    border: Border.all(color: Colors.black, width: 1.4),
+                    boxShadow: const [
+                      BoxShadow(
+                        offset: Offset(3, 3),
+                        blurRadius: 0,
+                        color: Colors.black12,
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
-          ),
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(1),
+                      child: Container(
+                        width: barWidth,
+                        decoration: BoxDecoration(
+                          color: progressColor,
+                          borderRadius: BorderRadius.circular(1),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Center(
+                  child: Text(
+                    '${percentage.round()}%',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: textColor,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -385,13 +411,21 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
         width: 56,
         height: 40,
         decoration: BoxDecoration(
-          color: isSelected ? Colors.grey.shade800 : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
+          color: isSelected ? Colors.grey.shade900 : Colors.white,
+          borderRadius: BorderRadius.circular(1),
+          border: Border.all(color: Colors.black, width: 1.5),
+          boxShadow: const [
+            BoxShadow(
+              offset: Offset(3, 3),
+              color: Colors.black12,
+              blurRadius: 0,
+            ),
+          ],
         ),
         child: Icon(
           isSelected ? selectedIcon : icon,
           size: iconSize,
-          color: isSelected ? Colors.white : Colors.grey.shade600,
+          color: isSelected ? Colors.white : Colors.grey.shade700,
         ),
       ),
     );
@@ -399,6 +433,10 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
 
   Widget _buildHomeContent() {
     final showChart = _data.tasks.isNotEmpty;
+    final overlayHeight = min(
+      _chartOverlayHeight,
+      MediaQuery.of(context).size.height * 0.35,
+    );
 
     if (_settings.chartAsOverlay && showChart) {
       return Stack(
@@ -407,7 +445,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(
                 16,
-              ).copyWith(bottom: _chartOverlayHeight + 24),
+              ).copyWith(bottom: overlayHeight + 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -429,10 +467,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
             bottom: 12,
             child: SafeArea(
               top: false,
-              child: SizedBox(
-                height: _chartOverlayHeight,
-                child: _buildChartCard(),
-              ),
+              child: SizedBox(height: overlayHeight, child: _buildChartCard()),
             ),
           ),
         ],
@@ -477,8 +512,8 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.black, width: 2.2),
+        borderRadius: BorderRadius.circular(1),
+        border: Border.all(color: Colors.black, width: 2),
         boxShadow: const [
           BoxShadow(offset: Offset(6, 6), blurRadius: 0, color: Colors.black12),
         ],
@@ -501,7 +536,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: AppTheme.surfaceColor,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(1),
             ),
             child: Row(
               children: [
@@ -565,7 +600,15 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
       child: Container(
         decoration: BoxDecoration(
           color: AppTheme.surfaceColor,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(1),
+          border: Border.all(color: Colors.black, width: 2),
+          boxShadow: const [
+            BoxShadow(
+              offset: Offset(6, 6),
+              color: Colors.black12,
+              blurRadius: 0,
+            ),
+          ],
         ),
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -589,7 +632,37 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
             Row(
               children: [
                 // Left: calendar progress preview
-                Expanded(flex: 1, child: _buildCalendarGrid(month)),
+                Expanded(
+                  flex: 1,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+                            .map(
+                              (day) => SizedBox(
+                                width: AppTheme.cellSize + AppTheme.cellSpacing,
+                                child: Center(
+                                  child: Text(
+                                    day,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: day == 'S'
+                                          ? Colors.red.shade600
+                                          : Colors.grey.shade700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      const SizedBox(height: 6),
+                      _buildCalendarGrid(month),
+                    ],
+                  ),
+                ),
                 const SizedBox(width: 12),
                 // Right: stats
                 Expanded(
@@ -614,19 +687,19 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
                       Row(
                         children: [
                           _buildMedalChip(
-                            '#1',
+                            '1st',
                             topThree.isNotEmpty ? topThree[0] : null,
                             const Color(0xFFFFD700),
                           ),
                           const SizedBox(width: 6),
                           _buildMedalChip(
-                            '#2',
+                            '2nd',
                             topThree.length > 1 ? topThree[1] : null,
                             const Color(0xFFC0C0C0),
                           ),
                           const SizedBox(width: 6),
                           _buildMedalChip(
-                            '#3',
+                            '3rd',
                             topThree.length > 2 ? topThree[2] : null,
                             const Color(0xFFCD7F32),
                           ),
@@ -652,8 +725,12 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(1),
+        border: Border.all(color: Colors.black, width: 1.5),
+        boxShadow: const [
+          BoxShadow(offset: Offset(4, 4), color: Colors.black12, blurRadius: 0),
+        ],
       ),
       child: Row(
         children: [
@@ -777,13 +854,15 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
     Color color,
   ) {
     final text = entry != null ? '${entry.key} (${entry.value})' : '—';
+    final background = color.withAlpha((0.12 * 255).round());
+    final border = color.withAlpha((0.5 * 255).round());
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withOpacity(0.5)),
+          color: background,
+          borderRadius: BorderRadius.circular(1),
+          border: Border.all(color: border),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -850,7 +929,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
                               (percentage / 100 * 255).toInt(),
                             ))
                     : Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(1),
               ),
             ),
           );
@@ -891,7 +970,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(1),
       ),
       padding: const EdgeInsets.all(32),
       child: Column(

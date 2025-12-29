@@ -88,7 +88,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         elevation: 0,
         color: c.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(1)),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: c.background,
@@ -100,9 +100,10 @@ class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: c.primary,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(1),
+            side: const BorderSide(color: Colors.black, width: 1.4),
           ),
         ),
       ),
@@ -116,15 +117,15 @@ class AppTheme {
         filled: true,
         fillColor: c.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(1),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(1),
+          borderSide: const BorderSide(color: Colors.black, width: 1.2),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(1),
           borderSide: BorderSide(color: c.primary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(
@@ -165,7 +166,11 @@ class AppTheme {
   // Cell decoration for completion grid
   static BoxDecoration completedCellDecoration(bool isCompleted) =>
       BoxDecoration(
-        color: isCompleted ? colors.completed : Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(6),
+        color: isCompleted ? colors.completed : Colors.white,
+        borderRadius: BorderRadius.circular(1),
+        border: Border.all(color: Colors.black54, width: 1.4),
+        boxShadow: const [
+          BoxShadow(offset: Offset(2, 2), blurRadius: 0, color: Colors.black12),
+        ],
       );
 }

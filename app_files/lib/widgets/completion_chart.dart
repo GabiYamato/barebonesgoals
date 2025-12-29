@@ -48,145 +48,164 @@ class _CompletionChartState extends State<CompletionChart> {
     final percentages = days
         .map((day) => widget.data.getCompletionPercentage(day))
         .toList();
-    const double chartHeight = 140.0;
+    const double baseChartHeight = 140.0;
+    const double minChartHeight = 80.0;
     const double xAxisHeight = 20.0;
+    const double verticalOverhead =
+        110.0; // header + spacing + padding + footer
     final streak = widget.data.calculateStreak();
 
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableHeight = constraints.maxHeight.isFinite
+            ? constraints.maxHeight
+            : double.infinity;
+        final chartHeight = availableHeight.isFinite
+            ? max(
+                minChartHeight,
+                min(baseChartHeight, availableHeight - verticalOverhead),
+              )
+            : baseChartHeight;
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(8),
+          physics: const ClampingScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.bar_chart, color: AppTheme.chartColor),
-              const SizedBox(width: 8),
-              Text(
-                'Completion Rate',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
-              ),
-              const Spacer(),
-              // Streak indicator
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.orange.shade100,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.black, width: 1.5),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.local_fire_department,
-                      size: 16,
-                      color: Colors.orange.shade800,
+              Row(
+                children: [
+                  Icon(Icons.bar_chart, color: AppTheme.chartColor),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Completion Rate',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w900,
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '$streak',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange.shade900,
+                  ),
+                  const Spacer(),
+                  // Streak indicator
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade100,
+                      borderRadius: BorderRadius.circular(1),
+                      border: Border.all(color: Colors.black, width: 1.4),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.local_fire_department,
+                          size: 16,
+                          color: Colors.orange.shade800,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '$streak',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange.shade900,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // Chart with Y-axis
+              SizedBox(
+                height: chartHeight + xAxisHeight,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Y-axis labels - properly aligned to chart area
+                    SizedBox(
+                      width: 40,
+                      height: chartHeight,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: Text(
+                              '100%',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: Text(
+                              '50%',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: Text(
+                              '0%',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Chart content with clipping - scrolled to end
+                    Expanded(
+                      child: ClipRect(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final content = _buildChartContent(
+                              days,
+                              percentages,
+                              chartHeight,
+                              constraints.maxWidth,
+                            );
+
+                            return SingleChildScrollView(
+                              controller: _scrollController,
+                              scrollDirection: Axis.horizontal,
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minWidth: constraints.maxWidth,
+                                ),
+                                child: Center(child: content),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: 8),
+              Center(
+                child: Text(
+                  'Last $daysCount days',
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 16),
-          // Chart with Y-axis
-          SizedBox(
-            height: chartHeight + xAxisHeight,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Y-axis labels - properly aligned to chart area
-                SizedBox(
-                  width: 40,
-                  height: chartHeight,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 4),
-                        child: Text(
-                          '100%',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey.shade700,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 4),
-                        child: Text(
-                          '50%',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey.shade700,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 4),
-                        child: Text(
-                          '0%',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey.shade700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Chart content with clipping - scrolled to end
-                Expanded(
-                  child: ClipRect(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final content = _buildChartContent(
-                          days,
-                          percentages,
-                          chartHeight,
-                          constraints.maxWidth,
-                        );
-
-                        return SingleChildScrollView(
-                          controller: _scrollController,
-                          scrollDirection: Axis.horizontal,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              minWidth: constraints.maxWidth,
-                            ),
-                            child: Center(child: content),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Center(
-            child: Text(
-              'Last $daysCount days',
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 

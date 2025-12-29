@@ -68,7 +68,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         margin: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.black, width: 2),
+          boxShadow: const [
+            BoxShadow(
+              offset: Offset(6, 6),
+              blurRadius: 0,
+              color: Colors.black12,
+            ),
+          ],
         ),
         child: SafeArea(
           top: false,
@@ -78,45 +86,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 16),
               const Text(
                 'Clear All Data?',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Text(
                 'This will delete all your tasks and history.',
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
-              const Divider(height: 1),
-              InkWell(
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _clearAllData();
-                },
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: const Text(
-                    'Clear All Data',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.red,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+              const SizedBox(height: 18),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
                 ),
-              ),
-              const Divider(height: 1),
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w400),
-                    textAlign: TextAlign.center,
-                  ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _NeoButton(
+                        label: 'Clear All Data',
+                        background: Colors.red,
+                        foreground: Colors.white,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          _clearAllData();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _NeoButton(
+                        label: 'Cancel',
+                        background: Colors.black,
+                        foreground: Colors.white,
+                        onTap: () => Navigator.of(context).pop(),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -494,8 +500,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surfaceColor,
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black, width: 2),
+        boxShadow: const [
+          BoxShadow(offset: Offset(6, 6), blurRadius: 0, color: Colors.black12),
+        ],
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -541,8 +551,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.black, width: 1.2),
                 ),
                 child: Text(
                   '${value.toInt()} days',
@@ -582,7 +593,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         margin: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.black, width: 2),
+          boxShadow: const [
+            BoxShadow(
+              offset: Offset(6, 6),
+              blurRadius: 0,
+              color: Colors.black12,
+            ),
+          ],
         ),
         child: SafeArea(
           top: false,
@@ -592,7 +611,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 16),
               const Text(
                 'Select Graph Type',
-                style: TextStyle(fontSize: 13, color: Colors.grey),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
               ...GraphType.values.map(
@@ -638,16 +657,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const Divider(height: 1),
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w400),
-                    textAlign: TextAlign.center,
-                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
+                child: _NeoButton(
+                  label: 'Cancel',
+                  background: Colors.black,
+                  foreground: Colors.white,
+                  onTap: () => Navigator.of(context).pop(),
                 ),
               ),
             ],
@@ -671,14 +690,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.grey.shade100 : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Colors.grey.shade300,
-            width: isSelected ? 1.5 : 1,
+            color: isSelected ? Colors.black : Colors.grey.shade300,
+            width: 1.5,
           ),
+          boxShadow: isSelected
+              ? const [
+                  BoxShadow(
+                    offset: Offset(4, 4),
+                    blurRadius: 0,
+                    color: Colors.black12,
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           children: [
@@ -715,6 +741,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 color: Theme.of(context).colorScheme.primary,
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NeoButton extends StatelessWidget {
+  final String label;
+  final Color background;
+  final Color foreground;
+  final VoidCallback onTap;
+
+  const _NeoButton({
+    required this.label,
+    required this.background,
+    required this.foreground,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 46,
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.black, width: 1.6),
+          boxShadow: const [
+            BoxShadow(
+              offset: Offset(4, 4),
+              blurRadius: 0,
+              color: Colors.black12,
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: foreground,
+              fontWeight: FontWeight.w800,
+              fontSize: 15,
+              letterSpacing: 0.2,
+            ),
+          ),
         ),
       ),
     );

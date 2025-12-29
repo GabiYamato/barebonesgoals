@@ -31,7 +31,13 @@ class _AddTaskModalState extends State<AddTaskModal> {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(1)),
+        border: Border.fromBorderSide(
+          BorderSide(color: Colors.black, width: 2),
+        ),
+        boxShadow: [
+          BoxShadow(offset: Offset(6, 6), blurRadius: 0, color: Colors.black12),
+        ],
       ),
       child: SafeArea(
         top: false,
@@ -47,11 +53,11 @@ class _AddTaskModalState extends State<AddTaskModal> {
             children: [
               // Drag handle
               Container(
-                width: 36,
+                width: 40,
                 height: 5,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(3),
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(1),
                 ),
               ),
               const SizedBox(height: 20),
@@ -70,6 +76,20 @@ class _AddTaskModalState extends State<AddTaskModal> {
                   hintText: 'Task name',
                   hintStyle: TextStyle(color: Colors.grey.shade400),
                   prefixIcon: Icon(Icons.task_alt, color: Colors.grey.shade400),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(1)),
+                    borderSide: BorderSide(color: Colors.black, width: 1.4),
+                  ),
+                  enabledBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(1)),
+                    borderSide: BorderSide(color: Colors.black, width: 1.4),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(1)),
+                    borderSide: BorderSide(color: Colors.black, width: 2),
+                  ),
                 ),
                 textCapitalization: TextCapitalization.words,
                 onSubmitted: (_) => _submit(),
