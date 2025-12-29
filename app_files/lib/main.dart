@@ -324,45 +324,47 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
             body: _currentIndex == 0
                 ? _buildHomeContent()
                 : _buildHistoryContent(),
-            bottomNavigationBar: SafeArea(
-              top: false,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border(
-                    top: BorderSide(color: Colors.grey.shade200, width: 1),
-                  ),
+            bottomNavigationBar: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  top: BorderSide(color: Colors.grey.shade200, width: 1),
                 ),
-                height: 60,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    // Home tab
-                    _buildNavItem(
-                      index: 0,
-                      icon: Icons.home_outlined,
-                      selectedIcon: Icons.home,
-                      isSelected: _currentIndex == 0,
-                      onTap: () => _onNavTap(0),
-                    ),
-                    // Add tab
-                    _buildNavItem(
-                      index: 1,
-                      icon: Icons.add_circle_outline,
-                      selectedIcon: Icons.add_circle,
-                      isSelected: false, // Add is never "selected"
-                      onTap: () => _onNavTap(1),
-                      iconSize: 32,
-                    ),
-                    // History tab
-                    _buildNavItem(
-                      index: 2,
-                      icon: Icons.calendar_month_outlined,
-                      selectedIcon: Icons.calendar_month,
-                      isSelected: _currentIndex == 1,
-                      onTap: () => _onNavTap(2),
-                    ),
-                  ],
+              ),
+              child: SafeArea(
+                top: false,
+                child: SizedBox(
+                  height: 60,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      // Home tab
+                      _buildNavItem(
+                        index: 0,
+                        icon: Icons.home_outlined,
+                        selectedIcon: Icons.home,
+                        isSelected: _currentIndex == 0,
+                        onTap: () => _onNavTap(0),
+                      ),
+                      // Add tab
+                      _buildNavItem(
+                        index: 1,
+                        icon: Icons.add_circle_outline,
+                        selectedIcon: Icons.add_circle,
+                        isSelected: false, // Add is never "selected"
+                        onTap: () => _onNavTap(1),
+                        iconSize: 32,
+                      ),
+                      // History tab
+                      _buildNavItem(
+                        index: 2,
+                        icon: Icons.calendar_month_outlined,
+                        selectedIcon: Icons.calendar_month,
+                        isSelected: _currentIndex == 1,
+                        onTap: () => _onNavTap(2),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
