@@ -173,9 +173,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Switch.adaptive(
                       value: _settings.isDarkMode,
                       onChanged: (value) {
-                        _updateSettings(
-                          _settings.copyWith(isDarkMode: value),
-                        );
+                        _updateSettings(_settings.copyWith(isDarkMode: value));
                       },
                     ),
                   ],

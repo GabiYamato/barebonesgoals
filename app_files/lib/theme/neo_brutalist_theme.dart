@@ -186,9 +186,9 @@ class AppTheme {
       listTileTheme: const ListTileThemeData(
         contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 4),
       ),
-      textTheme: ThemeData(brightness: brightness)
-          .textTheme
-          .apply(bodyColor: c.primary, displayColor: c.primary),
+      textTheme: ThemeData(
+        brightness: brightness,
+      ).textTheme.apply(bodyColor: c.primary, displayColor: c.primary),
     );
   }
 

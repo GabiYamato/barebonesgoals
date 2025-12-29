@@ -68,10 +68,7 @@ class _DailyTrackerAppState extends State<DailyTrackerApp> {
 
   @override
   Widget build(BuildContext context) {
-    AppTheme.setScheme(
-      _settings.themeScheme,
-      isDark: _settings.isDarkMode,
-    );
+    AppTheme.setScheme(_settings.themeScheme, isDark: _settings.isDarkMode);
 
     return MaterialApp(
       title: 'Daily Tracker',
@@ -82,11 +79,11 @@ class _DailyTrackerAppState extends State<DailyTrackerApp> {
       home: _isLoading
           ? const Scaffold(body: Center(child: CircularProgressIndicator()))
           : _hasSeenIntro
-              ? TrackerHomePage(
-                  settings: _settings,
-                  onSettingsChanged: _updateSettings,
-                )
-              : SplashScreen(onIntroDone: _onIntroDone),
+          ? TrackerHomePage(
+              settings: _settings,
+              onSettingsChanged: _updateSettings,
+            )
+          : SplashScreen(onIntroDone: _onIntroDone),
     );
   }
 }
@@ -302,10 +299,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    AppTheme.setScheme(
-      _settings.themeScheme,
-      isDark: _settings.isDarkMode,
-    );
+    AppTheme.setScheme(_settings.themeScheme, isDark: _settings.isDarkMode);
     final theme = AppTheme.themeData(
       _settings.themeScheme,
       isDark: _settings.isDarkMode,
