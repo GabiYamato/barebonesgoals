@@ -339,8 +339,8 @@ class _MonthDetailScreenState extends State<MonthDetailScreen> {
                           final color = isFuture
                               ? Colors.grey.shade200
                               : isCompleted
-                                  ? AppTheme.completedColor
-                                  : Colors.grey.shade300;
+                              ? AppTheme.completedColor
+                              : Colors.grey.shade300;
 
                           return GestureDetector(
                             onTap: isFuture
