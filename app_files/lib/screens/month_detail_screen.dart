@@ -295,7 +295,7 @@ class _MonthDetailScreenState extends State<MonthDetailScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(1),
                       border: Border.all(color: Colors.black, width: 1.5),
                     ),
                     alignment: Alignment.centerLeft,
@@ -309,7 +309,7 @@ class _MonthDetailScreenState extends State<MonthDetailScreen> {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
             ],
           ),
           const SizedBox(width: 10),
@@ -339,8 +339,8 @@ class _MonthDetailScreenState extends State<MonthDetailScreen> {
                           final color = isFuture
                               ? Colors.grey.shade200
                               : isCompleted
-                              ? AppTheme.completedColor
-                              : Colors.grey.shade300;
+                                  ? AppTheme.completedColor
+                                  : Colors.grey.shade300;
 
                           return GestureDetector(
                             onTap: isFuture
@@ -354,7 +354,7 @@ class _MonthDetailScreenState extends State<MonthDetailScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: color,
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(1),
                                 border: Border.all(
                                   color: isToday
                                       ? AppTheme.chartColor
@@ -367,7 +367,7 @@ class _MonthDetailScreenState extends State<MonthDetailScreen> {
                         }).toList(),
                       ),
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             ),
@@ -388,7 +388,7 @@ class _MonthDetailScreenState extends State<MonthDetailScreen> {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: Colors.black,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(1),
           ),
           child: Text(
             '${day.day}',

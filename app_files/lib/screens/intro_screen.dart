@@ -84,8 +84,8 @@ class _IntroScreenState extends State<IntroScreen> {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: AppTheme.completedColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(24),
+              color: AppTheme.completedColor.withAlpha((0.1 * 255).round()),
+              borderRadius: BorderRadius.circular(1),
             ),
             child: Icon(
               Icons.task_alt_rounded,
@@ -127,8 +127,8 @@ class _IntroScreenState extends State<IntroScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
+              color: Colors.blue.withAlpha((0.1 * 255).round()),
+              borderRadius: BorderRadius.circular(1),
             ),
             child: const Icon(
               Icons.checklist_rounded,
@@ -173,7 +173,7 @@ class _IntroScreenState extends State<IntroScreen> {
                     color: selected
                         ? AppTheme.completedColor
                         : Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(1),
                     border: Border.all(
                       color: selected
                           ? AppTheme.completedColor

@@ -350,10 +350,11 @@ class _ImportExportScreenState extends State<ImportExportScreen> {
     required Color iconColor,
     required Widget child,
   }) {
+    final bg = iconColor.withAlpha((0.1 * 255).round());
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(1),
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -364,8 +365,8 @@ class _ImportExportScreenState extends State<ImportExportScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  color: bg,
+                  borderRadius: BorderRadius.circular(1),
                 ),
                 child: Icon(icon, color: iconColor, size: 24),
               ),

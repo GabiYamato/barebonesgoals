@@ -683,7 +683,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }) {
     final isSelected = _settings.themeScheme == scheme;
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(1),
       onTap: () {
         _updateSettings(_settings.copyWith(themeScheme: scheme));
       },
@@ -691,7 +691,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(1),
           border: Border.all(
             color: isSelected ? Colors.black : Colors.grey.shade300,
             width: 1.5,
@@ -708,12 +708,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         child: Row(
           children: [
-            Radio<ThemeScheme>(
-              value: scheme,
-              groupValue: _settings.themeScheme,
-              onChanged: (_) {
-                _updateSettings(_settings.copyWith(themeScheme: scheme));
-              },
+            Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.black : Colors.white,
+                borderRadius: BorderRadius.circular(1),
+                border: Border.all(color: Colors.black, width: 1.6),
+              ),
+              child: isSelected
+                  ? Center(
+                      child: Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(1),
+                        ),
+                      ),
+                    )
+                  : null,
             ),
             const SizedBox(width: 8),
             Expanded(
