@@ -24,6 +24,7 @@ class AppThemeColors {
 
 class AppTheme {
   static ThemeScheme _activeScheme = ThemeScheme.palette;
+  static bool _isDark = false;
 
   static const Map<ThemeScheme, AppThemeColors> _schemes = {
     ThemeScheme.palette: AppThemeColors(
@@ -46,11 +47,34 @@ class AppTheme {
     ),
   };
 
-  static void setScheme(ThemeScheme scheme) {
+  static const Map<ThemeScheme, AppThemeColors> _darkSchemes = {
+    ThemeScheme.palette: AppThemeColors(
+      primary: Colors.white,
+      secondary: Color(0xFFE9204F),
+      background: Color(0xFF0F0F0F),
+      surface: Color(0xFF1B1B1B),
+      completed: Color(0xFFE9204F),
+      chart: Color(0xFFE9204F),
+      error: Color(0xFFFF4D4D),
+    ),
+    ThemeScheme.classic: AppThemeColors(
+      primary: Colors.white,
+      secondary: Color(0xFF34C759),
+      background: Color(0xFF0F0F0F),
+      surface: Color(0xFF1A1A1A),
+      completed: Color(0xFF34C759),
+      chart: Color(0xFF00A3FF),
+      error: Color(0xFFFF4D4D),
+    ),
+  };
+
+  static void setScheme(ThemeScheme scheme, {bool isDark = false}) {
     _activeScheme = scheme;
+    _isDark = isDark;
   }
 
-  static AppThemeColors get colors => _schemes[_activeScheme]!;
+  static AppThemeColors get colors =>
+      (_isDark ? _darkSchemes : _schemes)[_activeScheme]!;
 
   static Color get primaryColor => colors.primary;
   static Color get secondaryColor => colors.secondary;
@@ -65,14 +89,16 @@ class AppTheme {
   static const double cellSpacing = 4.0;
 
   // Theme data factory for a specific scheme
-  static ThemeData themeData(ThemeScheme scheme) {
-    final c = _schemes[scheme]!;
+  static ThemeData themeData(ThemeScheme scheme, {bool isDark = false}) {
+    final c = (isDark ? _darkSchemes : _schemes)[scheme]!;
+    final brightness = isDark ? Brightness.dark : Brightness.light;
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.light(
+      brightness: brightness,
+      colorScheme: (isDark ? ColorScheme.dark : ColorScheme.light)(
         primary: c.primary,
         secondary: c.secondary,
-        surface: c.background,
+        surface: c.surface,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: c.primary,
@@ -160,13 +186,16 @@ class AppTheme {
       listTileTheme: const ListTileThemeData(
         contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 4),
       ),
+      textTheme: ThemeData(brightness: brightness)
+          .textTheme
+          .apply(bodyColor: c.primary, displayColor: c.primary),
     );
   }
 
   // Cell decoration for completion grid
   static BoxDecoration completedCellDecoration(bool isCompleted) =>
       BoxDecoration(
-        color: isCompleted ? colors.completed : Colors.white,
+        color: isCompleted ? colors.completed : colors.surface,
         borderRadius: BorderRadius.circular(1),
         border: Border.all(color: Colors.black54, width: 1.4),
         boxShadow: const [

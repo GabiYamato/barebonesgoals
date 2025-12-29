@@ -29,17 +29,26 @@ class DailyTrackerApp extends StatefulWidget {
 class _DailyTrackerAppState extends State<DailyTrackerApp> {
   bool _isLoading = true;
   bool _hasSeenIntro = true;
+  AppSettings _settings = AppSettings();
 
   @override
   void initState() {
     super.initState();
     _checkFirstTime();
+    _loadSettings();
   }
 
   Future<void> _checkFirstTime() async {
     final hasSeenIntro = await StorageService.hasSeenIntro();
     setState(() {
       _hasSeenIntro = hasSeenIntro;
+    });
+  }
+
+  Future<void> _loadSettings() async {
+    final settings = await StorageService.loadSettings();
+    setState(() {
+      _settings = settings;
       _isLoading = false;
     });
   }
@@ -50,23 +59,47 @@ class _DailyTrackerAppState extends State<DailyTrackerApp> {
     });
   }
 
+  Future<void> _updateSettings(AppSettings newSettings) async {
+    setState(() {
+      _settings = newSettings;
+    });
+    await StorageService.saveSettings(newSettings);
+  }
+
   @override
   Widget build(BuildContext context) {
+    AppTheme.setScheme(
+      _settings.themeScheme,
+      isDark: _settings.isDarkMode,
+    );
+
     return MaterialApp(
       title: 'Daily Tracker',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.themeData(AppSettings().themeScheme),
+      theme: AppTheme.themeData(_settings.themeScheme, isDark: false),
+      darkTheme: AppTheme.themeData(_settings.themeScheme, isDark: true),
+      themeMode: _settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       home: _isLoading
           ? const Scaffold(body: Center(child: CircularProgressIndicator()))
           : _hasSeenIntro
-          ? const TrackerHomePage()
-          : SplashScreen(onIntroDone: _onIntroDone),
+              ? TrackerHomePage(
+                  settings: _settings,
+                  onSettingsChanged: _updateSettings,
+                )
+              : SplashScreen(onIntroDone: _onIntroDone),
     );
   }
 }
 
 class TrackerHomePage extends StatefulWidget {
-  const TrackerHomePage({super.key});
+  final AppSettings settings;
+  final ValueChanged<AppSettings> onSettingsChanged;
+
+  const TrackerHomePage({
+    super.key,
+    required this.settings,
+    required this.onSettingsChanged,
+  });
 
   @override
   State<TrackerHomePage> createState() => _TrackerHomePageState();
@@ -74,7 +107,7 @@ class TrackerHomePage extends StatefulWidget {
 
 class _TrackerHomePageState extends State<TrackerHomePage> {
   TrackerData _data = TrackerData.empty();
-  AppSettings _settings = AppSettings();
+  late AppSettings _settings;
   bool _isLoading = true;
   int _currentIndex = 0;
   late ConfettiController _confettiController;
@@ -86,7 +119,18 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
     _confettiController = ConfettiController(
       duration: const Duration(seconds: 2),
     );
+    _settings = widget.settings;
     _loadData();
+  }
+
+  @override
+  void didUpdateWidget(covariant TrackerHomePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.settings != widget.settings) {
+      setState(() {
+        _settings = widget.settings;
+      });
+    }
   }
 
   @override
@@ -97,21 +141,15 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
 
   Future<void> _loadData() async {
     final data = await StorageService.loadData();
-    final settings = await StorageService.loadSettings();
 
     setState(() {
       _data = data;
-      _settings = settings;
       _isLoading = false;
     });
   }
 
   Future<void> _saveData() async {
     await StorageService.saveData(_data);
-  }
-
-  Future<void> _saveSettings() async {
-    await StorageService.saveSettings(_settings);
   }
 
   void _toggleCompletion(String taskId, DateTime date) {
@@ -158,7 +196,7 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
     setState(() {
       _settings = newSettings;
     });
-    _saveSettings();
+    widget.onSettingsChanged(newSettings);
   }
 
   void _showAddTaskModal() {
@@ -264,8 +302,14 @@ class _TrackerHomePageState extends State<TrackerHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    AppTheme.setScheme(_settings.themeScheme);
-    final theme = AppTheme.themeData(_settings.themeScheme);
+    AppTheme.setScheme(
+      _settings.themeScheme,
+      isDark: _settings.isDarkMode,
+    );
+    final theme = AppTheme.themeData(
+      _settings.themeScheme,
+      isDark: _settings.isDarkMode,
+    );
 
     if (_isLoading) {
       return Scaffold(

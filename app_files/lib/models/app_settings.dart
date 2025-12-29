@@ -12,6 +12,7 @@ class AppSettings {
   final bool sortCompletedToBottom;
   final bool chartAsOverlay;
   final ThemeScheme themeScheme;
+  final bool isDarkMode;
 
   AppSettings({
     this.showHistoryInGraph = false,
@@ -21,6 +22,7 @@ class AppSettings {
     this.sortCompletedToBottom = true,
     this.chartAsOverlay = false,
     this.themeScheme = ThemeScheme.palette,
+    this.isDarkMode = false,
   });
 
   AppSettings copyWith({
@@ -31,6 +33,7 @@ class AppSettings {
     bool? sortCompletedToBottom,
     bool? chartAsOverlay,
     ThemeScheme? themeScheme,
+    bool? isDarkMode,
   }) {
     return AppSettings(
       showHistoryInGraph: showHistoryInGraph ?? this.showHistoryInGraph,
@@ -42,6 +45,7 @@ class AppSettings {
           sortCompletedToBottom ?? this.sortCompletedToBottom,
       chartAsOverlay: chartAsOverlay ?? this.chartAsOverlay,
       themeScheme: themeScheme ?? this.themeScheme,
+      isDarkMode: isDarkMode ?? this.isDarkMode,
     );
   }
 
@@ -54,6 +58,7 @@ class AppSettings {
       'sortCompletedToBottom': sortCompletedToBottom,
       'chartAsOverlay': chartAsOverlay,
       'themeScheme': themeScheme.index,
+      'isDarkMode': isDarkMode,
     };
   }
 
@@ -71,6 +76,7 @@ class AppSettings {
                 ThemeScheme.values.length - 1,
               ) ??
               0],
+      isDarkMode: json['isDarkMode'] as bool? ?? false,
     );
   }
 
