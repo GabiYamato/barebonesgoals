@@ -225,128 +225,67 @@ class TaskGrid extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 8),
-              Container(
-                width: 40,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(1),
-                ),
-              ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
                   task.name,
                   style: const TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
-              const SizedBox(height: 12),
-              const Divider(height: 1),
-              InkWell(
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _showEditDialog(context, task);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.edit_outlined,
-                        size: 20,
-                        color: Colors.blue.shade700,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Edit Name',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.blue.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const Divider(height: 1),
-              InkWell(
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _showReorderSheet(context);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.swap_vert,
-                        size: 20,
-                        color: Colors.orange.shade700,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Reorder Tasks',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.orange.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const Divider(height: 1),
-              InkWell(
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _showDeleteDialog(context, task);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.delete_outline,
-                        size: 20,
-                        color: AppTheme.errorColor,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Delete Task',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.errorColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const Divider(height: 1),
+              const SizedBox(height: 16),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 16,
-                ),
-                child: _NeoButton(
-                  label: 'Cancel',
-                  background: Colors.black,
-                  foreground: Colors.white,
-                  onTap: () => Navigator.of(context).pop(),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Column(
+                  children: [
+                    _NeoButton(
+                      label: 'Edit Name',
+                      background: Colors.white,
+                      foreground: Colors.black,
+                      icon: Icons.edit_outlined,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        _showEditDialog(context, task);
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _NeoButton(
+                      label: 'Reorder Tasks',
+                      background: Colors.white,
+                      foreground: Colors.black,
+                      icon: Icons.swap_vert,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        _showReorderSheet(context);
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _NeoButton(
+                      label: 'Delete Task',
+                      background: AppTheme.errorColor,
+                      foreground: Colors.white,
+                      icon: Icons.delete_outline,
+                      iconColor: Colors.white,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        _showDeleteDialog(context, task);
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _NeoButton(
+                      label: 'Cancel',
+                      background: Colors.black,
+                      foreground: Colors.white,
+                      onTap: () => Navigator.of(context).pop(),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 12),
             ],
           ),
         ),
@@ -535,37 +474,9 @@ class TaskGrid extends StatelessWidget {
                         Expanded(
                           child: _NeoButton(
                             label: 'Cancel',
-                            background: Colors.red,
+                            background: Colors.black,
                             foreground: Colors.white,
                             onTap: () => Navigator.of(context).pop(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _NeoButton(
-                            label: 'Edit Task',
-                            background: Colors.white,
-                            foreground: Colors.black,
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              _showEditDialog(context, task);
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: _NeoButton(
-                            label: 'Reorder',
-                            background: Colors.white,
-                            foreground: Colors.black,
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              _showReorderSheet(context);
-                            },
                           ),
                         ),
                       ],
@@ -808,12 +719,16 @@ class _NeoButton extends StatelessWidget {
   final Color background;
   final Color foreground;
   final VoidCallback onTap;
+  final IconData? icon;
+  final Color? iconColor;
 
   const _NeoButton({
     required this.label,
     required this.background,
     required this.foreground,
     required this.onTap,
+    this.icon,
+    this.iconColor,
   });
 
   @override
@@ -835,14 +750,24 @@ class _NeoButton extends StatelessWidget {
           ],
         ),
         child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: foreground,
-              fontWeight: FontWeight.w800,
-              fontSize: 15,
-              letterSpacing: 0.2,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 18, color: iconColor ?? foreground),
+                const SizedBox(width: 8),
+              ],
+              Text(
+                label,
+                style: TextStyle(
+                  color: foreground,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 15,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
           ),
         ),
       ),
